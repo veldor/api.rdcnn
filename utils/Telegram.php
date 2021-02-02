@@ -9,7 +9,6 @@ use app\models\Management;
 use app\models\User;
 use app\priv\Info;
 use Exception;
-use TelegramBot\Api\BotApi;
 use TelegramBot\Api\Client;
 use TelegramBot\Api\InvalidJsonException;
 use TelegramBot\Api\Types\Message;
@@ -24,9 +23,9 @@ class Telegram
 
     public static function handleRequest(): void
     {
+        echo 'i here';
         try {
             $token = Info::TG_BOT_TOKEN;
-            /** @var BotApi|Client $bot */
             self::$bot = new Client($token);
 // команда для start
             self::$bot->command(/**
@@ -90,7 +89,7 @@ class Telegram
 
             self::$bot->on(/**
              * @param $Update Update
-             */ static function ($Update) use ($bot) {
+             */ static function ($Update) {
                 /** @var Update $Update */
                 /** @var Message $message */
                 try {
@@ -100,7 +99,7 @@ class Telegram
                     $answer = self::handleSimpleText($msg_text, $message);
                     self::sendMessage($answer);
                 } catch (Exception $e) {
-                    $bot->sendMessage($message->getChat()->getId(), $e->getMessage());
+                    self::sendMessage($e->getMessage());
                 }
             }, static function () {
                 return true;
@@ -111,6 +110,7 @@ class Telegram
                 // что-то сделаю потом
             }
         } catch (Exception $e) {
+            echo 'have error ' . $e->getTraceAsString();
             // запишу ошибку в лог
             self::sendDebug($e->getMessage());
         }
