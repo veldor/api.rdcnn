@@ -24,4 +24,13 @@ class Management
             Telegram::sendDebug('Запущено обновление ПО через GitHub');
         }
     }
+
+    /**
+     *<b>Обновлю ПО сервера через GITHUB</b>
+     */
+    public static function updateSoft(): void
+    {
+        $file = Yii::$app->basePath . '\\updateFromGithub.bat';
+        self::startScript($file);
+    }
 }
