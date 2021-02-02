@@ -23,7 +23,6 @@ class Telegram
 
     public static function handleRequest(): void
     {
-        echo 'i here';
         try {
             $token = Info::TG_BOT_TOKEN;
             self::$bot = new Client($token);
@@ -39,6 +38,7 @@ class Telegram
 
 // команда для помощи
             self::$bot->command('help', static function ($message){
+                self::$message = $message;
                 if (TelegramClient::isRegistered($message)) {
                     $answer = 'Команды:
 /help - вывод справки
@@ -93,17 +93,19 @@ class Telegram
                 /** @var Update $Update */
                 /** @var Message $message */
                 try {
-                    $message = $Update->getMessage();
-                    $msg_text = $message->getText();
+                    self::$message = $Update->getMessage();
+                    $msg_text = self::$message->getText();
                     // получен простой текст, обработаю его в зависимости от содержимого
-                    $answer = self::handleSimpleText($msg_text, $message);
+                    $answer = self::handleSimpleText($msg_text);
                     self::sendMessage($answer);
                 } catch (Exception $e) {
-                    self::sendMessage($e->getMessage());
+                    self::sendMessage($e->getMessage() . $e->getLine());
                 }
             }, static function () {
                 return true;
             });
+
+
             try {
                 self::$bot->run();
             } catch (InvalidJsonException) {
@@ -117,14 +119,14 @@ class Telegram
     }
 
 
-    private static function handleSimpleText(string $msg_text, Message $message): string
+    private static function handleSimpleText(string $msg_text): string
     {
         if (str_starts_with($msg_text, '/register ')) {
             $token = substr($msg_text, 10);
             $user = User::findIdentityByAccessToken($token);
             if ($user !== null) {
                 // зарегистрирую пользователя, если он ещё не зарегистрирован
-                TelegramClient::register($user, $message->getChat()->getId());
+                TelegramClient::register($user, self::$message->getChat()->getId());
                 return 'Успешная регистрация';
             }
         }

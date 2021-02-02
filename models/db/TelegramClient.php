@@ -23,7 +23,7 @@ class TelegramClient extends ActiveRecord
 
     public static function register(User $user, string $token): void
     {
-        if (self::find()->where(['person_id' => $user->getId(), 'telegram_id' => $token])->count() === 0) {
+        if (self::find()->where(['person_id' => $user->getId(), 'telegram_id' => $token])->count() == 0) {
             (new self(['person_id' => $user->getId(), 'telegram_id' => $token]))->save();
         }
     }
