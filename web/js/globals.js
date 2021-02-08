@@ -346,7 +346,7 @@ function handleAjaxActivators() {
             // отправлю запрос на форму
             console.log('send ajax');
             sendAjax(
-                "get",
+                "post",
                 action,
                 simpleAnswerHandler
             )
@@ -369,16 +369,26 @@ function setCookie(name, value, days) {
     }
     document.cookie += name + "=" + (value || "") + expires + "; path=/";
 }
+function getCookie(name = '') {
+    let cookies = document.cookie;
+    let cookiestore = {};
 
-function getCookie(name) {
-    var nameEQ = name + "=";
-    var ca = document.cookie.split(';');
-    for (var i = 0; i < ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+    cookies = cookies.split(";");
+
+    if (cookies[0] === "" && cookies[0][0] === undefined) {
+        return undefined;
     }
-    return null;
+
+    cookies.forEach(function(cookie) {
+        cookie = cookie.split(/=(.+)/);
+        if (cookie[0].substr(0, 1) === ' ') {
+            cookie[0] = cookie[0].substr(1);
+        }
+        cookiestore[cookie[0]] = cookie[1];
+    });
+    console.log(cookiestore)
+
+    return (name !== '' ? cookiestore[name] : cookiestore);
 }
 
 function enableTooltips() {

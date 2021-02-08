@@ -8,5 +8,5 @@ use yii\base\Model;
 
 class UserModel extends Model
 {
-    public $items;
+    public array|null $items = null;
 }

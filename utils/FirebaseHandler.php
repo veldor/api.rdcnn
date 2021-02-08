@@ -1,9 +1,9 @@
 <?php
 
 
-namespace app\models\utils;
+namespace app\utils;
 
-use app\models\database\Task;
+use app\models\db\Task;
 use app\models\db\FirebaseClient;
 use app\models\User;
 use app\priv\Info;
@@ -21,7 +21,7 @@ class FirebaseHandler
         if (!empty($executors)) {
             /** @var User $executor */
             foreach ($executors as $executor) {
-                $contacts = FirebaseClient::find()->where(['user' => $executor->id])->all();
+                $contacts = FirebaseClient::find()->where(['person_id' => $executor->id])->all();
                 if (!empty($contacts)) {
                     /** @noinspection SlowArrayOperationsInLoopInspection */
                     $list = array_merge($list, $contacts);
@@ -65,7 +65,7 @@ class FirebaseHandler
         // отправлю сообщение всем контактам, которые зарегистрированы
         $initiator = User::findOne($task->initiator);
         if ($initiator !== null) {
-            $contacts = FirebaseClient::find()->where(['user' => $initiator->id])->all();
+            $contacts = FirebaseClient::find()->where(['person_id' => $initiator->id])->all();
             if (!empty($contacts)) {
                 $message = new Message();
                 $message->setPriority('high');
@@ -105,7 +105,7 @@ class FirebaseHandler
         // отправлю сообщение всем контактам, которые зарегистрированы
         $initiator = User::findOne($item->initiator);
         if ($initiator !== null) {
-            $contacts = FirebaseClient::find()->where(['user' => $initiator->id])->all();
+            $contacts = FirebaseClient::find()->where(['person_id' => $initiator->id])->all();
             if (!empty($contacts)) {
                 $message = new Message();
                 $message->setPriority('high');
@@ -124,7 +124,7 @@ class FirebaseHandler
         // отправлю сообщение всем контактам, которые зарегистрированы
         $initiator = User::findOne($item->initiator);
         if ($initiator !== null) {
-            $contacts = FirebaseClient::find()->where(['user' => $initiator->id])->all();
+            $contacts = FirebaseClient::find()->where(['person_id' => $initiator->id])->all();
             if (!empty($contacts)) {
                 $message = new Message();
                 $message->setPriority('high');

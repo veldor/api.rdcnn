@@ -13,6 +13,8 @@ $urlRules = require __DIR__ . '/rules.php';
 
 $config = [
     'id' => 'tickets',
+    'language' => 'ru-RU',
+    'sourceLanguage' => 'ru-RU',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
     'aliases' => [

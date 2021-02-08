@@ -20,7 +20,8 @@
         "yiisoft/yii2": "~2.0.40",
         "yiisoft/yii2-bootstrap": "~2.0.10",
         "yiisoft/yii2-swiftmailer": "~2.1.2",
-        "sngrl/php-firebase-cloud-messaging": "dev-master"
+        "nirvana-msu/yii2-showloading": "1.0.*@dev",
+        "sngrl/php-firebase-cloud-messaging": "dev-master",
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",

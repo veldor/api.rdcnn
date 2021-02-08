@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use app\models\db\AuthAssigment;
+use app\models\db\Task;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
@@ -21,6 +23,7 @@ use yii\web\IdentityInterface;
 
 class User extends ActiveRecord implements IdentityInterface
 {
+
     public static function tableName():string
     {
         return 'person';
@@ -55,6 +58,16 @@ class User extends ActiveRecord implements IdentityInterface
     public static function findByUsername(string $username): ?User
     {
         return self::findOne(['username' => $username]);
+    }
+
+    public static function deleteUser($userId)
+    {
+        $existentIdentity = self::findIdentity($userId);
+        if($existentIdentity !== null){
+            // удалю права доступа и самого пользователя
+            AuthAssigment::deleteUserRights($existentIdentity);
+            $existentIdentity->delete();
+        }
     }
 
     /**
@@ -93,5 +106,15 @@ class User extends ActiveRecord implements IdentityInterface
     public function validatePassword(string $password): bool
     {
         return Yii::$app->security->validatePassword($password, $this->password_hash);
+    }
+
+    public function getUnhandledTasks(): string
+    {
+        // посчитаю количество заявок для роли исполнителя и принятые но не выполненные заявки
+        $unhandledTasks = Task::find()->where(['target' => $this->role, 'task_status' => 'created'])->orWhere(['executor' => $this->id, 'task_status' => 'accepted'])->count();
+        if($unhandledTasks > 0){
+            return "<span class=\"badge bage-danger\">$unhandledTasks</span>";
+        }
+        return '';
     }
 }

@@ -4,6 +4,7 @@
 namespace app\models\db;
 
 
+use app\models\User;
 use yii\db\ActiveRecord;
 
 /**
@@ -29,5 +30,29 @@ class Role extends ActiveRecord
             }
         }
         return $answer;
+    }
+
+    public static function getExecutorsList()
+    {
+        $answer = [];
+        $counter = 0;
+        $roles = self::find()->all();
+        if(!empty($roles)){
+            foreach($roles as $role){
+                if($counter < 3){
+                    $answer[$role->id] = $role->role_name;
+                    $counter++;
+                }
+                else{
+                    break;
+                }
+            }
+        }
+        return $answer;
+    }
+
+    public static function getPersonRole(User $initiatorInfo)
+    {
+        return self::findOne($initiatorInfo->role)->role_name;
     }
 }

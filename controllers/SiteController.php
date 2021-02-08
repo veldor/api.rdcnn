@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Api;
+use app\models\db\Task;
 use app\models\LoginForm;
 use app\models\User;
 use app\utils\Telegram;
@@ -80,7 +81,8 @@ class SiteController extends Controller
         if (Yii::$app->user->isGuest) {
             return $this->redirect('/login');
         }
-        return $this->render("index");
+        $outgoingTasks = Task::getTaskList(Yii::$app->user->getId());
+        return $this->render("index", ['outgoingTasks' => $outgoingTasks]);
     }
 
     /**

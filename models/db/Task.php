@@ -1,12 +1,13 @@
 <?php
 
 
-namespace app\models\database;
+namespace app\models\db;
 
-use app\models\db\Role;
-use app\models\selections\TaskItem;
+use app\models\TaskItem;
 use app\models\User;
-use app\models\utils\FirebaseHandler;
+use app\utils\FirebaseHandler;
+use Throwable;
+use Yii;
 use yii\db\ActiveRecord;
 use yii\db\Exception;
 
@@ -32,6 +33,10 @@ class Task extends ActiveRecord
         return 'tasks';
     }
 
+    /**
+     * @param int $id
+     * @return TaskItem[]
+     */
     public static function getTaskList(int $id): array
     {
         $existent = self::find()->where(['initiator' => $id])->all();
@@ -45,22 +50,6 @@ class Task extends ActiveRecord
         return $result;
     }
 
-    public static function getTasksForExecutor(User $user): array
-    {
-        // получу список задач, которые уже привязаны к данному пользователю, и тех, что относятся
-        // к его группе но не привязаны к нему
-        $tasks = self::find()->where(['executor' => $user->id])->orWhere(['executor' => null, 'target' => $user->role])->all();
-        $result = [];
-        if (!empty($tasks)) {
-            /** @var Task $item */
-            foreach ($tasks as $item) {
-                $result[] = self::getTaskItem($item);
-            }
-        }
-        return $result;
-    }
-
-
     /**
      * @param Task $item
      * @return TaskItem
@@ -68,6 +57,7 @@ class Task extends ActiveRecord
     public static function getTaskItem(Task $item): TaskItem
     {
         $task = new TaskItem();
+        $task->task = $item;
         $task->id = $item->id;
         $initiator = User::findIdentity($item->initiator);
         if ($initiator !== null) {
@@ -111,13 +101,13 @@ class Task extends ActiveRecord
         throw new Exception("Неверный идентификатор задачи");
     }
 
-    public static function setTaskConfirmed($taskId, $plannedTime, User $user): void
+    public static function setTaskConfirmed($taskId, $adysForFinish, User $user): void
     {
         $item = self::findOne($taskId);
         if ($item !== null) {
             $now = time();
             $item->task_accept_time = $now;
-            $item->task_planned_finish_time = $now + $plannedTime * 86400;
+            $item->task_planned_finish_time = $now + $adysForFinish * 86400;
             $item->executor = $user->id;
             $item->task_status = 'accepted';
             $item->save();
@@ -143,10 +133,14 @@ class Task extends ActiveRecord
         return self::find()->where(['target' => $user->role, 'task_status' => 'created'])->count();
     }
 
+    /**
+     * @param $taskId
+     * @throws Throwable
+     */
     public static function setTaskFinished($taskId): void
     {
         $item = self::findOne($taskId);
-        if ($item !== null && $item->task_status !== 'finished') {
+        if ($item !== null && $item->task_status !== 'finished' && $item->executor === Yii::$app->user->getIdentity()->getId()) {
             $now = time();
             $item->task_finish_time = $now;
             $item->task_status = 'finished';
@@ -159,7 +153,7 @@ class Task extends ActiveRecord
     public static function setTaskDismissed($taskId, $reason): void
     {
         $item = self::findOne($taskId);
-        if($item !== null){
+        if ($item !== null) {
             $now = time();
             $item->task_finish_time = $now;
             $item->task_status = 'cancelled_by_executor';

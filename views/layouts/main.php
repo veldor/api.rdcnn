@@ -29,6 +29,7 @@ AppAsset::register($this);
 
 <div class="wrap" id="mainWrap">
     <?php
+    echo Alert::widget();
 /*    NavBar::begin([
         'brandLabel' => Yii::$app->name,
         'brandUrl' => Yii::$app->homeUrl,
