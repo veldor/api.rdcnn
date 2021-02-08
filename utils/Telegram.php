@@ -84,7 +84,7 @@ class Telegram
             self::$bot->command('update_software', static function ($message) {
                 self::$message = $message;
                 if(TelegramClient::isRegistered(self::$message)){
-                    Management::updateSoft();
+                    //Management::updateSoft();
                     self::sendMessage('Запущено обновление ПО');
                 }
             });

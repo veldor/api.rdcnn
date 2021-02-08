@@ -23,7 +23,6 @@ class Api
      */
     public static function handleRequest(): array
     {
-        Telegram::sendDebug("access to api");
         if(!empty($_POST)){
             return ['status' => 'success', 'message' => serialize($_POST)];
         }
