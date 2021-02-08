@@ -1,14 +1,14 @@
 <?php
 
 
-namespace app\models;
+namespace app\utils;
 
-use app\models\database\Task;
 use app\models\db\FirebaseClient;
-use app\models\utils\FirebaseHandler;
-use app\utils\Telegram;
+use app\models\db\Task;
+use app\models\User;
 use Exception;
 use JsonException;
+use Throwable;
 
 class Api
 {
@@ -209,7 +209,7 @@ class Api
 
     /**
      * @return string[]
-     * @throws Exception
+     * @throws Exception|Throwable
      */
     private static function finishTask(): array
     {

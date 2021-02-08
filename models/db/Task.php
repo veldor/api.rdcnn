@@ -163,4 +163,9 @@ class Task extends ActiveRecord
             FirebaseHandler::sendTaskDismissed($item);
         }
     }
+
+    public static function getTasksForExecutor(User $user): array
+    {
+        return self::find()->where(['executor' => $user->id])->orWhere(['executor' => null, 'target' => $user->role])->all();
+    }
 }
