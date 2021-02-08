@@ -5,7 +5,6 @@
 namespace app\utils;
 
 use app\models\db\TelegramClient;
-use app\models\Management;
 use app\models\User;
 use app\priv\Info;
 use Exception;
@@ -82,7 +81,7 @@ class Telegram
             self::$bot->command('update_software', static function ($message) {
                 self::$message = $message;
                 if(TelegramClient::isRegistered(self::$message)){
-                    //Management::updateSoft();
+                    Management::updateSoft();
                     self::sendMessage('Запущено обновление ПО');
                 }
             });

@@ -5,7 +5,6 @@ namespace app\utils;
 
 use app\models\db\FirebaseClient;
 use app\models\db\Task;
-use app\models\Management;
 use app\models\User;
 use Exception;
 use JsonException;
@@ -23,7 +22,6 @@ class Api
      */
     public static function handleRequest(): array
     {
-        Management::updateSoft();
         if(!empty($_POST)){
             return ['status' => 'success', 'message' => serialize($_POST)];
         }

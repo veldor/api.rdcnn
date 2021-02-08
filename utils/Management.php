@@ -1,11 +1,9 @@
 <?php
 
 
-namespace app\models;
-
+namespace app\utils;
 
 use app\models\utils\ComHandler;
-use app\utils\Telegram;
 use Yii;
 
 class Management
