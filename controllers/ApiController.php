@@ -3,8 +3,8 @@
 
 namespace app\controllers;
 
-
-use app\models\Api;
+use app\utils\Api;
+use JsonException;
 use Yii;
 use yii\rest\Controller;
 use yii\web\BadRequestHttpException;
@@ -26,6 +26,10 @@ class ApiController extends Controller
         return parent::beforeAction($action);
     }
 
+    /**
+     * @return array
+     * @throws JsonException
+     */
     public function actionDo(): array
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
