@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'api' => 'site/api',
+    'api' => 'api/do',
     'login' => 'site/login',
     'cancel-task' => 'user/cancel-task',
     'accept-task' => 'executor/accept-task',
