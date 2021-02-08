@@ -4,6 +4,7 @@
 namespace app\utils;
 
 use app\models\db\FirebaseClient;
+use app\utils\Telegram;
 use app\models\db\Task;
 use app\models\User;
 use Exception;
@@ -18,10 +19,11 @@ class Api
      * Обработка запроса
      * @return array
      * @throws JsonException
-     * @throws Exception
+     * @throws Exception|Throwable
      */
     public static function handleRequest(): array
     {
+        Telegram::sendDebug("access to api");
         if(!empty($_POST)){
             return ['status' => 'success', 'message' => serialize($_POST)];
         }
