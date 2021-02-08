@@ -24,7 +24,7 @@ class Telegram
     public static function handleRequest(): void
     {
 
-        Telegram::sendDebug("access to tg");
+        Telegram::sendDebug("access to tg " . serialize($_POST));
         try {
             $token = Info::TG_BOT_TOKEN;
             self::$bot = new Client($token);
