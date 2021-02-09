@@ -1,7 +1,7 @@
 <?php /** @noinspection PhpUndefinedClassInspection */
 
 
-namespace app\models\utils;
+namespace app\utils;
 
 
 use COM;
