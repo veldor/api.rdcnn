@@ -23,6 +23,7 @@ class Api
     public static function handleRequest(): array
     {
         if (!empty($_POST)) {
+            Telegram::sendDebug('have api post ' . serialize($_POST));
             return ['status' => 'success', 'message' => serialize($_POST)];
         }
         try {
@@ -82,12 +83,10 @@ class Api
     {
         // получу учётную запись по токену
         $token = self::$data['token'];
-        Telegram::sendDebug('request data with token ' . $token);
         if (!empty($token)) {
             $user = User::findIdentityByAccessToken($token);
             if ($user !== null) {
                 $list = Task::getTaskList($user->id);
-                Telegram::sendDebug('list ready, size: ' . count($list));
                 return ['status' => 'success', 'list' => $list];
             }
         }
