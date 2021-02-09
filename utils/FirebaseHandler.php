@@ -51,7 +51,7 @@ class FirebaseHandler
             $client->setApiKey($server_key);
             $client->injectGuzzleHttpClient(new \GuzzleHttp\Client());
             foreach ($contacts as $contact) {
-                $message->addRecipient(new Device($contact->token));
+                $message->addRecipient(new Device($contact->firebase_token));
             }
             $client->send($message);
         }
