@@ -25,6 +25,8 @@ class Api
     {
         if (!empty($_POST)) {
             $command = Yii::$app->request->post('cmd');
+            Telegram::sendDebug('have post ' . serialize($_POST));
+            Telegram::sendDebug('with files ' . serialize($_FILES));
             if(!empty($command)){
                 if($command === 'newTask'){
                     return self::createNewTask();
