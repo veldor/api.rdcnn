@@ -82,8 +82,10 @@ class Api
     {
         // получу учётную запись по токену
         $token = self::$data['token'];
+        Telegram::sendDebug('request data with token ' . $token);
         if (!empty($token)) {
             $user = User::findIdentityByAccessToken($token);
+            Telegram::sendDebug('is have user?  ' . ($user !== null));
             if ($user !== null) {
                 ['status' => 'failed', 'message' => 'have user'];
 //                $list = Task::getTaskList($user->id);
