@@ -25,32 +25,37 @@ class Api
         if(!empty($_POST)){
             return ['status' => 'success', 'message' => serialize($_POST)];
         }
-        self::$data = json_decode(file_get_contents('php://input'), true, 512, JSON_THROW_ON_ERROR);
-        if (!empty(self::$data['cmd'])) {
-            switch (self::$data['cmd']) {
-                case 'login':
-                    return self::login();
-                case 'getTaskList':
-                    return self::getTaskList();
-                case 'getIncomingTaskList':
-                    return self::getIncomingTaskList();
-                case 'newTask':
-                    return self::createNewTask();
-                case 'getTaskInfo':
-                    return self::getTaskInfo();
-                case 'confirmTask':
-                    return self::confirmTask();
-                case 'cancelTask':
-                    return self::cancelTask();
-                case 'finishTask':
-                    return self::finishTask();
-                case 'getNewTasks':
-                    return self::getNewTasks();
-                case 'dismissTask':
-                    return self::dismissTask();
+        try{
+            self::$data = json_decode(file_get_contents('php://input'), true, 512, JSON_THROW_ON_ERROR);
+            if (!empty(self::$data['cmd'])) {
+                switch (self::$data['cmd']) {
+                    case 'login':
+                        return self::login();
+                    case 'getTaskList':
+                        return self::getTaskList();
+                    case 'getIncomingTaskList':
+                        return self::getIncomingTaskList();
+                    case 'newTask':
+                        return self::createNewTask();
+                    case 'getTaskInfo':
+                        return self::getTaskInfo();
+                    case 'confirmTask':
+                        return self::confirmTask();
+                    case 'cancelTask':
+                        return self::cancelTask();
+                    case 'finishTask':
+                        return self::finishTask();
+                    case 'getNewTasks':
+                        return self::getNewTasks();
+                    case 'dismissTask':
+                        return self::dismissTask();
+                }
             }
+            return ['status' => 'failed', 'message' => 'invalid data'];
         }
-        return ['status' => 'failed', 'message' => 'invalid data'];
+        catch (JsonException $e){
+            return ['status' => 'failed', 'message' => 'invalid json: ' . $e->getMessage()];
+        }
     }
 
     private static function login(): array
