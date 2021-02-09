@@ -10,6 +10,7 @@ use app\models\db\Task;
 use app\utils\FirebaseHandler;
 use app\utils\Telegram;
 use app\utils\TimeHandler;
+use Exception;
 use Yii;
 use yii\base\Model;
 
@@ -17,21 +18,24 @@ class TaskItem extends Model
 {
     public const SCENARIO_NEW = 'new';
 
-    public int $id;
-    public string $initiator;
+    public int $id = 0;
+    public string $initiator = '';
+    public string $initiatorPhone = '';
+    public string $initiatorEmail = '';
     public string $target = '';
-    public string $executor;
-    public int $task_creation_time;
-    public string $task_accept_time;
-    public string $task_planned_finish_time;
-    public string $task_finish_time;
+    public string $executor = '';
+    public string $executorPhone = '';
+    public string $executorEmail = '';
+    public int $task_creation_time = 0;
+    public string $task_accept_time = '';
+    public string $task_planned_finish_time = '';
+    public string $task_finish_time = '';
     public string $task_header = '';
     public string $task_body = '';
     public string $task_status = '';
-    public string $executor_comment;
-    public mixed $imageFile;
-    public Task $task;
-    public mixed $attachmentFile;
+    public string $executor_comment = '';
+    public mixed $imageFile = '';
+    public mixed $attachmentFile = '';
 
     public function scenarios(): array
     {
@@ -124,22 +128,26 @@ class TaskItem extends Model
 
     /**
      * @return string
+     * @throws Exception
      */
     public function getExecutorInfo(): string
     {
+        $task = Task::getTaskInfo($this->id);
         if(empty($this->executor)){
             return '<b class="text-danger">Пока не назначен</b>';
         }
 
-        return "<b class='text-success'>Исполнитель: {$this->executor}</b><br/><div class='btn-group'>" . Email::getEmailButton($this->task->executor) . Phone::getPhoneButton($this->task->executor) . '</div>';
+        return "<b class='text-success'>Исполнитель: {$this->executor}</b><br/><div class='btn-group'>" . Email::getEmailButton($task->executor) . Phone::getPhoneButton($task->executor) . '</div>';
     }
 
     /**
      * @return string
+     * @throws Exception
      */
     public function getCustomerInfo(): string
     {
-        return "<b class='text-success'>Заказчик: {$this->initiator}</b><br/><div class='btn-group'>" . Email::getEmailButton($this->task->initiator) . Phone::getPhoneButton($this->task->initiator) . '</div>';
+        $task = Task::getTaskInfo($this->id);
+        return "<b class='text-success'>Заказчик: {$this->initiator}</b><br/><div class='btn-group'>" . Email::getEmailButton($task->initiator) . Phone::getPhoneButton($task->initiator) . '</div>';
     }
 
     public function getTaskCreateTimeText(): string

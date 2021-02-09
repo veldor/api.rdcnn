@@ -37,14 +37,14 @@ class Task extends ActiveRecord
      * @param int $id
      * @return TaskItem[]
      */
-    public static function getTaskList(int $id, $skipAddLinkToTask = false): array
+    public static function getTaskList(int $id): array
     {
         $existent = self::find()->where(['initiator' => $id])->all();
         $result = [];
         if (!empty($existent)) {
             /** @var Task $item */
             foreach ($existent as $item) {
-                $result[] = self::getTaskItem($item, $skipAddLinkToTask);
+                $result[] = self::getTaskItem($item);
             }
         }
         return $result;
@@ -55,21 +55,22 @@ class Task extends ActiveRecord
      * @param bool $skipAddLinkToTask
      * @return TaskItem
      */
-    public static function getTaskItem(Task $item, $skipAddLinkToTask = false): TaskItem
+    public static function getTaskItem(Task $item): TaskItem
     {
         $task = new TaskItem();
-        if(!$skipAddLinkToTask){
-            $task->task = $item;
-        }
         $task->id = $item->id;
         $initiator = User::findIdentity($item->initiator);
         if ($initiator !== null) {
             $task->initiator = $initiator->name;
+            $task->initiatorEmail = Email::getFirstEmail($initiator) ?? '';
+            $task->initiatorPhone = Phone::getFirstPhone($initiator) ?? '';
         }
         if (!empty($item->executor)) {
             $executor = User::findIdentity($item->executor);
             if ($executor !== null) {
                 $task->executor = $executor->name;
+                $task->executorEmail = Email::getFirstEmail($executor) ?? '';
+                $task->executorPhone = Phone::getFirstPhone($executor) ?? '';
             }
         } else {
             $task->executor = '';
