@@ -9,7 +9,7 @@ use Yii;
 class FileUtils
 {
 
-    public static function getTaskImage(int $id)
+    public static function getTaskImage(int $id): ?string
     {
         $dir = Yii::$app->getBasePath() . '/task_images';
         if(is_dir($dir)){
@@ -25,7 +25,7 @@ class FileUtils
         return null;
     }
 
-    public static function getAttachedFile(int $id)
+    public static function getAttachedFile(int $id): ?string
     {
         $dir = Yii::$app->getBasePath() . '/task_attachments';
         if(is_dir($dir)){

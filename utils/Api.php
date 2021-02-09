@@ -128,7 +128,7 @@ class Api
                 // добавлю фото при наличии
                 $image = UploadedFile::getInstanceByName('task_image');
                 if($image !== null){
-                    Telegram::sendDebug('have image ' . $image->getBaseName());
+                    $image->saveAs(Yii::$app->getBasePath() . '/task_images/' . $task->id . '.jpg');
                 }
                 FirebaseHandler::sendTaskCreated($task);
                 Telegram::sendDebug("Добавлена новая задача");
