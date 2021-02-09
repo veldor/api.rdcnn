@@ -88,7 +88,7 @@ class Api
             if ($user !== null) {
                 $list = Task::getTaskList($user->id, true);
                 Telegram::sendDebug('list ready');
-                return ['status' => 'success', 'list' => $list];
+                return ['status' => 'success', 'list' => []];
             }
         }
         return ['status' => 'failed', 'message' => 'invalid data'];
