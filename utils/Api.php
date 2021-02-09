@@ -86,8 +86,9 @@ class Api
         if (!empty($token)) {
             $user = User::findIdentityByAccessToken($token);
             if ($user !== null) {
-                $list = Task::getTaskList($user->id);
-                return ['status' => 'success', 'list' => $list];
+                ['status' => 'failed', 'message' => 'have user'];
+//                $list = Task::getTaskList($user->id);
+//                return ['status' => 'success', 'list' => $list];
             }
         }
         return ['status' => 'failed', 'message' => 'invalid data'];
