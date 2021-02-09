@@ -2,8 +2,6 @@
 
 
 namespace app\utils;
-
-use app\models\utils\ComHandler;
 use Yii;
 
 class Management
