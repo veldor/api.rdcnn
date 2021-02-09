@@ -10,6 +10,7 @@ use Exception;
 use JsonException;
 use Throwable;
 use Yii;
+use yii\web\UploadedFile;
 
 class Api
 {
@@ -25,8 +26,6 @@ class Api
     {
         if (!empty($_POST)) {
             $command = Yii::$app->request->post('cmd');
-            Telegram::sendDebug('have post ' . serialize($_POST));
-            Telegram::sendDebug('with files ' . serialize($_FILES));
             if(!empty($command)){
                 if($command === 'newTask'){
                     return self::createNewTask();
@@ -126,6 +125,11 @@ class Api
                 $task->task_status = 'created';
                 $task->target = $t;
                 $task->save();
+                // добавлю фото при наличии
+                $image = UploadedFile::getInstanceByName('task_image');
+                if($image !== null){
+                    Telegram::sendDebug('have image ' . $image->getBaseName());
+                }
                 FirebaseHandler::sendTaskCreated($task);
                 Telegram::sendDebug("Добавлена новая задача");
                 return ['status' => 'success'];
