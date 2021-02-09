@@ -9,6 +9,7 @@ use app\models\User;
 use Exception;
 use JsonException;
 use Throwable;
+use Yii;
 
 class Api
 {
@@ -23,7 +24,12 @@ class Api
     public static function handleRequest(): array
     {
         if (!empty($_POST)) {
-            Telegram::sendDebug('have api post ' . serialize($_POST));
+            $command = Yii::$app->request->post('cmd');
+            if(!empty($command)){
+                if($command === 'newTask'){
+                    return self::createNewTask();
+                }
+            }
             return ['status' => 'success', 'message' => serialize($_POST)];
         }
         try {
@@ -96,18 +102,19 @@ class Api
     private static function createNewTask(): array
     {
         // получу учётную запись по токену
-        $token = self::$data['token'];
+        $token = $command = Yii::$app->request->post('token');
         if (!empty($token)) {
             $user = User::findOne(['access_token' => $token]);
             if ($user !== null) {
                 // добавлю новую задачу
-                $theme = self::$data['title'];
-                $text = self::$data['text'];
-                $target = self::$data['target'];
+                $theme = $command = Yii::$app->request->post('title');
+                $text = $command = Yii::$app->request->post('text');
+                $target = $command = Yii::$app->request->post('target');
                 $t = match ($target) {
                     'IT-отдел' => 2,
                     'Инженерная служба' => 3,
                     'Офис' => 4,
+                    default => '0'
                 };
                 $task = new Task();
                 $task->initiator = $user->id;
