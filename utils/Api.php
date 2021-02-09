@@ -93,13 +93,7 @@ class Api
         if (!empty($token)) {
             $user = User::findIdentityByAccessToken($token);
             if ($user !== null) {
-                try{
-                    $list = Task::getTaskList($user->id);
-                }
-                catch (Exception $e){
-                    Telegram::sendDebug("have error " . $e->getTraceAsString());
-                }
-                Telegram::sendDebug("i here");
+                $list = Task::getTaskList($user->id);
                 return ['status' => 'success', 'list' => $list];
             }
         }

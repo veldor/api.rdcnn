@@ -53,8 +53,8 @@ class FileUtils
         if (is_dir($dir)) {
             $fileList = scandir($dir);
             if (!empty($fileList)) {
-                foreach ($fileList as $item) {
-                    if (str_starts_with($item, "{$item->id}.")) {
+                foreach ($fileList as $file) {
+                    if (str_starts_with($file, "{$item->id}.")) {
                         return true;
                     }
                 }
