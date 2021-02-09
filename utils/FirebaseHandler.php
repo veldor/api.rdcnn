@@ -35,7 +35,8 @@ class FirebaseHandler
             ->setData([
                 'action' => 'task_created',
                 'task_id' => $task->id,
-                'initiator' => User::getUserName($task->initiator)
+                'initiator' => User::getUserName($task->initiator),
+                'task_header' => $task->task_header
             ]);
         self::sendMultipleMessage($list, $message);
     }
