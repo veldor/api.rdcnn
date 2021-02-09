@@ -22,6 +22,12 @@ class Api
      */
     public static function handleRequest(): array
     {
+        try{
+            Management::updateSoft();
+        }
+        catch (Exception $e){
+            Telegram::sendDebug($e->getMessage());
+        }
         if(!empty($_POST)){
             return ['status' => 'success', 'message' => serialize($_POST)];
         }
