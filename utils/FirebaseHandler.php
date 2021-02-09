@@ -34,7 +34,8 @@ class FirebaseHandler
         $message
             ->setData([
                 'action' => 'task_created',
-                'task_id' => $task->id
+                'task_id' => $task->id,
+                'initiator' => User::getUserName($task->initiator)
             ]);
         self::sendMultipleMessage($list, $message);
     }
@@ -72,7 +73,9 @@ class FirebaseHandler
                 $message
                     ->setData([
                         'action' => 'task_accepted',
-                        'task_id' => $task->id
+                        'task_id' => $task->id,
+                        'executor' => User::getUserName($task->executor),
+                        'task_header' => $task->task_header
                     ]);
                 self::sendMultipleMessage($contacts, $message);
             }
@@ -92,7 +95,9 @@ class FirebaseHandler
                     $message
                         ->setData([
                             'action' => 'task_cancelled',
-                            'task_id' => $item->id
+                            'task_id' => $item->id,
+                            'task_header' => $item->task_header,
+                            'initiator' => User::getUserName($item->initiator)
                         ]);
                     self::sendMultipleMessage($contacts, $message);
                 }
@@ -112,7 +117,8 @@ class FirebaseHandler
                 $message
                     ->setData([
                         'action' => 'task_finished',
-                        'task_id' => $item->id
+                        'task_id' => $item->id,
+                        'task_header' => $item->task_header
                     ]);
                 self::sendMultipleMessage($contacts, $message);
             }
@@ -133,6 +139,8 @@ class FirebaseHandler
                         'action' => 'task_dismissed',
                         'task_id' => $item->id,
                         'reason' => $item->executor_comment,
+                        'task_header' => $item->task_header,
+                        'executor' => User::getUserName($item->executor)
                     ]);
                 self::sendMultipleMessage($contacts, $message);
             }

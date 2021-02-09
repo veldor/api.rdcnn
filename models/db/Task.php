@@ -5,6 +5,7 @@ namespace app\models\db;
 
 use app\models\TaskItem;
 use app\models\User;
+use app\utils\FileUtils;
 use app\utils\FirebaseHandler;
 use Throwable;
 use Yii;
@@ -88,6 +89,8 @@ class Task extends ActiveRecord
         $task->task_body = $item->task_body;
         $task->task_status = $item->task_status;
         $task->executor_comment = $item->executor_comment ?: '';
+        $task->imageFile = FileUtils::isImage($item);
+        $task->attachmentFile = FileUtils::isAttachment($item);
         return $task;
     }
 

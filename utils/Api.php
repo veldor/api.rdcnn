@@ -26,8 +26,8 @@ class Api
     {
         if (!empty($_POST)) {
             $command = Yii::$app->request->post('cmd');
-            if(!empty($command)){
-                if($command === 'newTask'){
+            if (!empty($command)) {
+                if ($command === 'newTask') {
                     return self::createNewTask();
                 }
             }
@@ -103,19 +103,19 @@ class Api
     private static function createNewTask(): array
     {
         // получу учётную запись по токену
-        $token = $command = Yii::$app->request->post('token');
+        $token = Yii::$app->request->post('token');
         if (!empty($token)) {
             $user = User::findOne(['access_token' => $token]);
             if ($user !== null) {
                 // добавлю новую задачу
-                $theme = $command = Yii::$app->request->post('title');
-                $text = $command = Yii::$app->request->post('text');
-                $target = $command = Yii::$app->request->post('target');
+                $theme = Yii::$app->request->post('title');
+                $text = Yii::$app->request->post('text');
+                $target = Yii::$app->request->post('target');
                 $t = match ($target) {
                     'IT-отдел' => 2,
                     'Инженерная служба' => 3,
                     'Офис' => 4,
-                    default => '0'
+                    default => 0
                 };
                 $task = new Task();
                 $task->initiator = $user->id;
@@ -127,14 +127,13 @@ class Api
                 $task->save();
                 // добавлю фото при наличии
                 $image = UploadedFile::getInstanceByName('task_image');
-                if($image !== null){
+                if ($image !== null) {
                     $image->saveAs(Yii::$app->getBasePath() . '/task_images/' . $task->id . '.jpg');
                 }
                 // добавлю документ при наличии
                 $zip = UploadedFile::getInstanceByName('task_document');
-                if($zip !== null){
+                if ($zip !== null) {
                     $zip->saveAs(Yii::$app->getBasePath() . '/task_attachments/' . $task->id . '.zip');
-                    Telegram::sendDebug("added zip");
                 }
                 FirebaseHandler::sendTaskCreated($task);
                 Telegram::sendDebug("Добавлена новая задача");
@@ -152,7 +151,14 @@ class Api
             $user = User::findIdentityByAccessToken($token);
             if ($user !== null) {
                 $tasks = Task::getTasksForExecutor($user);
-                return ['status' => 'success', 'list' => $tasks];
+                $result = [];
+                if (!empty($tasks)) {
+                    /** @var Task $item */
+                    foreach ($tasks as $item) {
+                        $result[] = Task::getTaskItem($item);
+                    }
+                }
+                return ['status' => 'success', 'list' => $result];
             }
         }
         return ['status' => 'failed', 'message' => 'invalid data'];
