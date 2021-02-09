@@ -85,11 +85,10 @@ class Api
         Telegram::sendDebug('request data with token ' . $token);
         if (!empty($token)) {
             $user = User::findIdentityByAccessToken($token);
-            Telegram::sendDebug('is have user?  ' . ($user !== null));
             if ($user !== null) {
-                ['status' => 'failed', 'message' => 'have user'];
-//                $list = Task::getTaskList($user->id);
-//                return ['status' => 'success', 'list' => $list];
+                $list = Task::getTaskList($user->id, true);
+                Telegram::sendDebug('list ready');
+                return ['status' => 'success', 'list' => $list];
             }
         }
         return ['status' => 'failed', 'message' => 'invalid data'];

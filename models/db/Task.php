@@ -37,14 +37,14 @@ class Task extends ActiveRecord
      * @param int $id
      * @return TaskItem[]
      */
-    public static function getTaskList(int $id): array
+    public static function getTaskList(int $id, $skipAddLinkToTask = false): array
     {
         $existent = self::find()->where(['initiator' => $id])->all();
         $result = [];
         if (!empty($existent)) {
             /** @var Task $item */
             foreach ($existent as $item) {
-                $result[] = self::getTaskItem($item);
+                $result[] = self::getTaskItem($item, $skipAddLinkToTask);
             }
         }
         return $result;
@@ -52,12 +52,15 @@ class Task extends ActiveRecord
 
     /**
      * @param Task $item
+     * @param bool $skipAddLinkToTask
      * @return TaskItem
      */
-    public static function getTaskItem(Task $item): TaskItem
+    public static function getTaskItem(Task $item, $skipAddLinkToTask = false): TaskItem
     {
         $task = new TaskItem();
-        $task->task = $item;
+        if(!$skipAddLinkToTask){
+            $task->task = $item;
+        }
         $task->id = $item->id;
         $initiator = User::findIdentity($item->initiator);
         if ($initiator !== null) {
