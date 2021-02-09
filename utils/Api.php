@@ -133,8 +133,8 @@ class Api
                 // добавлю документ при наличии
                 $zip = UploadedFile::getInstanceByName('task_document');
                 if($zip !== null){
-                    Telegram::sendDebug("have zip by size " . $zip->size);
-                    //$image->saveAs(Yii::$app->getBasePath() . '/task_images/' . $task->id . '.jpg');
+                    $zip->saveAs(Yii::$app->getBasePath() . '/task_attachments/' . $task->id . '.zip');
+                    Telegram::sendDebug("added zip");
                 }
                 FirebaseHandler::sendTaskCreated($task);
                 Telegram::sendDebug("Добавлена новая задача");
