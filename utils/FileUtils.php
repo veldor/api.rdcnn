@@ -72,13 +72,12 @@ class FileUtils
             if (!empty($fileList)) {
                 foreach ($fileList as $item) {
                     if (str_starts_with($item, "$taskId.")) {
+                        Telegram::sendDebug("found image");
                         Yii::$app->response->sendFile("$dir/$item", $item);
-                        return;
                     }
                 }
             }
         }
-        throw new NotFoundHttpException();
     }
     public static function loadTaskAttachment(string $taskId)
     {
