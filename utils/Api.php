@@ -289,8 +289,13 @@ class Api
             $user = User::findIdentityByAccessToken($token);
             if ($user !== null) {
                 $taskId = self::$data['taskId'];
-                FileUtils::loadTaskImage($taskId);
-                return null;
+                try{
+                    FileUtils::loadTaskImage($taskId);
+                    return null;
+                }
+                catch (Exception $e){
+                    Telegram::sendDebug($e->getMessage());
+                }
             }
         }
         return ['status' => 'failed', 'message' => 'invalid data'];
