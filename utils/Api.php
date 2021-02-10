@@ -10,6 +10,7 @@ use Exception;
 use JsonException;
 use Throwable;
 use Yii;
+use yii\web\Response;
 use yii\web\UploadedFile;
 
 class Api
@@ -290,11 +291,13 @@ class Api
             if ($user !== null) {
                 $taskId = self::$data['taskId'];
                 try{
+                    Yii::$app->response->format = Response::FORMAT_RAW;
                     FileUtils::loadTaskImage($taskId);
                     return null;
                 }
                 catch (Exception $e){
                     Telegram::sendDebug($e->getMessage());
+
                 }
             }
         }
