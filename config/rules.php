@@ -2,6 +2,7 @@
 
 return [
     'api' => 'api/do',
+    'get-file' => 'api/file',
     'login' => 'site/login',
     'cancel-task' => 'user/cancel-task',
     'accept-task' => 'executor/accept-task',

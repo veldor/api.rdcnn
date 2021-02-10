@@ -4,6 +4,7 @@
 namespace app\controllers;
 
 use app\utils\Api;
+use Exception;
 use JsonException;
 use Yii;
 use yii\rest\Controller;
@@ -18,7 +19,7 @@ class ApiController extends Controller
      */
     public function beforeAction($action):bool
     {
-        if ($action->id === 'do') {
+        if ($action->id === 'do' || $action->id === 'get-file') {
             // отключу csrf для возможности запроса
             $this->enableCsrfValidation = false;
         }
@@ -36,4 +37,13 @@ class ApiController extends Controller
         return Api::handleRequest();
     }
 
+    public function actionFile(){
+        try{
+            Api::handleFileRequest();
+        }
+        catch (Exception $e){
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ['status' => 'failed', 'message' => 'have error ' . $e->getMessage()];
+        }
+    }
 }

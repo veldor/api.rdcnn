@@ -40,8 +40,6 @@ class Api
                 switch (self::$data['cmd']) {
                     case 'login':
                         return self::login();
-                    case 'getImage':
-                        return self::getImage();
                     case 'getTaskList':
                         return self::getTaskList();
                     case 'getIncomingTaskList':
@@ -279,10 +277,9 @@ class Api
     }
 
     /**
-     * @return string[]|null
-     * @throws \yii\web\NotFoundHttpException
+     * @return void
      */
-    private static function getImage(): ?array
+    private static function getImage():void
     {
         // получу учётную запись по токену
         $token = self::$data['token'];
@@ -291,16 +288,48 @@ class Api
             if ($user !== null) {
                 $taskId = self::$data['taskId'];
                 try{
-                    Yii::$app->response->format = Response::FORMAT_RAW;
                     FileUtils::loadTaskImage($taskId);
-                    return null;
                 }
                 catch (Exception $e){
                     Telegram::sendDebug($e->getMessage());
-
                 }
             }
         }
-        return ['status' => 'failed', 'message' => 'invalid data'];
+    }
+
+    /**
+     * @return void
+     */
+    private static function getFile():void
+    {
+        // получу учётную запись по токену
+        $token = self::$data['token'];
+        if (!empty($token)) {
+            $user = User::findIdentityByAccessToken($token);
+            if ($user !== null) {
+                $taskId = self::$data['taskId'];
+                try{
+                    FileUtils::loadTaskAttachment($taskId);
+                }
+                catch (Exception $e){
+                    Telegram::sendDebug($e->getMessage());
+                }
+            }
+        }
+    }
+
+    public static function handleFileRequest()
+    {
+            self::$data = json_decode(file_get_contents('php://input'), true, 512, JSON_THROW_ON_ERROR);
+            if (!empty(self::$data['cmd'])) {
+                switch (self::$data['cmd']) {
+                    case 'getImage':
+                        self::getImage();
+                        break;
+                    case 'getFile':
+                        self::getFile();
+                        break;
+                }
+            }
     }
 }

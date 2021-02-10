@@ -74,6 +74,7 @@ class FileUtils
                     if (str_starts_with($item, "$taskId.")) {
                         Telegram::sendDebug("found image");
                         Yii::$app->response->sendFile("$dir/$item", $item);
+                        Telegram::sendDebug("set image");
                     }
                 }
             }
