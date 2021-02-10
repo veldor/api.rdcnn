@@ -64,7 +64,7 @@ class FileUtils
         return false;
     }
 
-    public static function loadTaskImage(string $taskId)
+    public static function loadTaskImage(string $taskId): void
     {
         $dir = Yii::$app->getBasePath() . '/task_images';
         if (is_dir($dir)) {
@@ -73,8 +73,12 @@ class FileUtils
                 foreach ($fileList as $item) {
                     if (str_starts_with($item, "$taskId.")) {
                         Telegram::sendDebug("found image");
-                        Yii::$app->response->sendFile("$dir/$item", $item);
-                        Telegram::sendDebug("set image");
+                        $filename = $dir = Yii::$app->getBasePath() . '/task_images/' . $item;
+                        if(is_file($filename)){
+                            Telegram::sendDebug("send image");
+                            Yii::$app->response->sendFile("$dir/$item", 'photo.jpg');
+                            Yii::$app->response->send();
+                        }
                     }
                 }
             }

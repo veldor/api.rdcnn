@@ -290,7 +290,7 @@ class Api
                 try{
                     FileUtils::loadTaskImage($taskId);
                 }
-                catch (Exception $e){
+                catch (Throwable $e){
                     Telegram::sendDebug($e->getMessage());
                 }
             }
