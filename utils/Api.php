@@ -249,7 +249,7 @@ class Api
             $user = User::findIdentityByAccessToken($token);
             if ($user !== null) {
                 $taskId = self::$data['taskId'];
-                Task::setTaskFinished($taskId);
+                Task::setTaskFinished($taskId, $user);
                 return self::getTaskInfo();
             }
         }

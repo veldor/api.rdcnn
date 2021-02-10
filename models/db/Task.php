@@ -144,10 +144,10 @@ class Task extends ActiveRecord
      * @param $taskId
      * @throws Throwable
      */
-    public static function setTaskFinished($taskId): void
+    public static function setTaskFinished($taskId, User $executor): void
     {
         $item = self::findOne($taskId);
-        if ($item !== null && $item->task_status !== 'finished' && $item->executor === Yii::$app->user->getIdentity()->getId()) {
+        if ($item !== null && $item->task_status !== 'finished' && $item->executor === $executor->getId()) {
             $now = time();
             $item->task_finish_time = $now;
             $item->task_status = 'finished';
