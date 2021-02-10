@@ -326,7 +326,7 @@ class Api
                     case 'getImage':
                         self::getImage();
                         break;
-                    case 'getFile':
+                    case 'getAttachment':
                         self::getFile();
                         break;
                 }

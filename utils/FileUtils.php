@@ -90,8 +90,11 @@ class FileUtils
             if (!empty($fileList)) {
                 foreach ($fileList as $item) {
                     if (str_starts_with($item, "$taskId.")) {
-                        Yii::$app->response->sendFile("$dir/$item", $item);
-                        return;
+                        $filename = $dir = Yii::$app->getBasePath() . '/task_attachments/' . $item;
+                        if(is_file($filename)){
+                            Yii::$app->response->sendFile($filename, 'photo.zip');
+                            Yii::$app->response->send();
+                        }
                     }
                 }
             }
