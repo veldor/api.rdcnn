@@ -290,7 +290,7 @@ class Api
             if ($user !== null) {
                 $taskId = self::$data['taskId'];
                 FileUtils::loadTaskImage($taskId);
-                return;
+                return null;
             }
         }
         return ['status' => 'failed', 'message' => 'invalid data'];
