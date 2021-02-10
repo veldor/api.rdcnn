@@ -72,10 +72,8 @@ class FileUtils
             if (!empty($fileList)) {
                 foreach ($fileList as $item) {
                     if (str_starts_with($item, "$taskId.")) {
-                        Telegram::sendDebug("found image");
                         $filename = $dir = Yii::$app->getBasePath() . '/task_images/' . $item;
                         if(is_file($filename)){
-                            Telegram::sendDebug("send image");
                             Yii::$app->response->sendFile("$dir/$item", 'photo.jpg');
                             Yii::$app->response->send();
                         }

@@ -4,6 +4,7 @@
 namespace app\controllers;
 
 use app\utils\Api;
+use app\utils\Telegram;
 use Exception;
 use JsonException;
 use Yii;
@@ -39,6 +40,7 @@ class ApiController extends Controller
 
     public function actionFile(){
         try{
+            Telegram::sendDebug('request image');
             Api::handleFileRequest();
         }
         catch (Exception $e){
