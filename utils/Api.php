@@ -39,6 +39,8 @@ class Api
                 switch (self::$data['cmd']) {
                     case 'login':
                         return self::login();
+                    case 'getImage':
+                        return self::getImage();
                     case 'getTaskList':
                         return self::getTaskList();
                     case 'getIncomingTaskList':
@@ -270,6 +272,25 @@ class Api
                 $reason = self::$data['reason'];
                 Task::setTaskDismissed($taskId, $reason);
                 return ['status' => 'success'];
+            }
+        }
+        return ['status' => 'failed', 'message' => 'invalid data'];
+    }
+
+    /**
+     * @return string[]|null
+     * @throws \yii\web\NotFoundHttpException
+     */
+    private static function getImage(): ?array
+    {
+        // получу учётную запись по токену
+        $token = self::$data['token'];
+        if (!empty($token)) {
+            $user = User::findIdentityByAccessToken($token);
+            if ($user !== null) {
+                $taskId = self::$data['taskId'];
+                FileUtils::loadTaskImage($taskId);
+                return;
             }
         }
         return ['status' => 'failed', 'message' => 'invalid data'];
