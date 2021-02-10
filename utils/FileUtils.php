@@ -74,7 +74,7 @@ class FileUtils
                     if (str_starts_with($item, "$taskId.")) {
                         $filename = $dir = Yii::$app->getBasePath() . '/task_images/' . $item;
                         if(is_file($filename)){
-                            Yii::$app->response->sendFile("$dir/$item", 'photo.jpg');
+                            Yii::$app->response->sendFile($filename, 'photo.jpg');
                             Yii::$app->response->send();
                         }
                     }
