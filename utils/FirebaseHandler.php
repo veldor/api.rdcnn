@@ -89,7 +89,7 @@ class FirebaseHandler
         if (!empty($item->executor)) {
             $executor = User::findOne($item->executor);
             if ($executor !== null) {
-                $contacts = FirebaseClient::find()->where(['user' => $executor->id])->all();
+                $contacts = FirebaseClient::find()->where(['person_id' => $executor->id])->all();
                 if (!empty($contacts)) {
                     $message = new Message();
                     $message->setPriority('high');
