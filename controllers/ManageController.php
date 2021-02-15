@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\exceptions\WrongArgumentException;
+use app\models\db\Task;
 use app\models\EditableUser;
 use app\models\User;
 use JetBrains\PhpStorm\ArrayShape;
@@ -34,6 +35,7 @@ class ManageController extends Controller
                             'existent-users',
                             'add-users',
                             'delete-user',
+                            'delete-task',
                         ],
                         'roles' => ['manager'],
                     ],
@@ -114,6 +116,16 @@ class ManageController extends Controller
             User::deleteUser($userId);
             Yii::$app->response->format = Response::FORMAT_JSON;
             return ['status' => 1, 'message' => 'Пользователь удалён', 'reload' => true];
+        }
+        throw new NotFoundHttpException();
+    }
+
+    #[ArrayShape(['status' => "int", 'message' => "string", 'reload' => "bool"])] public function actionDeleteTask($taskId): array
+    {
+        if(Yii::$app->request->isAjax && Yii::$app->request->isPost){
+            Task::deleteTask($taskId);
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ['status' => 1, 'message' => 'Задача удалёна', 'reload' => true];
         }
         throw new NotFoundHttpException();
     }

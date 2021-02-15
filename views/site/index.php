@@ -71,7 +71,7 @@ if ($filterCookie !== null && $filterCookie->value !== null) {
     }
     if (Yii::$app->user->can("manage ticket")) {
         echo '<li><!--suppress HtmlUnknownAnchorTarget -->
-<a href="#management" data-toggle="tab">Управление пользователями</a></li>';
+<a href="#management" data-toggle="tab">Управление пользователями</a></li><li><a href="#taskManagement" data-toggle="tab">Управление задачами</a></li>';
     }
     ?>
 </ul>
@@ -352,5 +352,30 @@ if ($filterCookie !== null && $filterCookie->value !== null) {
         echo Html::submitButton('Update', ['class' => 'btn btn-success']);
         ActiveForm::end();
         ?>
+    </div>
+    <div class="tab-pane" id="taskManagement">
+        <table class="table table-striped table-condensed table-hover">
+            <tbody>
+            <?php
+            try {
+                $query = Task::find();
+            } catch (Throwable) {
+            }
+            $dataProvider = new ActiveDataProvider([
+                'query' => $query->orderBy($incomingOrder),
+                'pagination' => [
+                    'pageSize' => 20,
+                ],
+            ]);
+            try {
+                echo ListView::widget([
+                    'dataProvider' => $dataProvider,
+                    'itemView' => 'manage_task_item',
+                ]);
+            } catch (Exception) {
+            }
+            ?>
+            </tbody>
+        </table>
     </div>
 </div>

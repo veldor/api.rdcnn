@@ -11,6 +11,7 @@ use Throwable;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\db\Exception;
+use yii\db\StaleObjectException;
 
 /**
  * @property int $id [int(10) unsigned]
@@ -174,5 +175,20 @@ class Task extends ActiveRecord
     public static function getTasksForExecutor(User $user): array
     {
         return self::find()->where(['executor' => $user->id])->orWhere(['executor' => null, 'target' => $user->role])->all();
+    }
+
+    /**
+     * @param $taskId
+     * @throws Throwable
+     * @throws StaleObjectException
+     */
+    public static function deleteTask($taskId): void
+    {
+        if(!empty($taskId)){
+            $task = self::findOne($taskId);
+            if($task !== null){
+                $task->delete();
+            }
+        }
     }
 }
