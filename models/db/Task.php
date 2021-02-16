@@ -37,11 +37,64 @@ class Task extends ActiveRecord
 
     /**
      * @param int $id
+     * @param null $filter
+     * @param null $sort
+     * @param null $limit
+     * @param null $page
      * @return TaskItem[]
      */
-    public static function getTaskList(int $id): array
+    public static function getTaskList(int $id, $filter = null, $sort = null, $limit = null, $page = null): array
     {
-        $existent = self::find()->where(['initiator' => $id])->all();
+        $query = self::find()->where(['initiator' => $id]);
+        $incomingFilterValue = [];
+        if($filter !== null){
+            $filterArray = str_split($filter);
+            if($filterArray[0] === '1'){
+                $incomingFilterValue[] = "created";
+            }
+            if($filterArray[1] === '1'){
+                $incomingFilterValue[] = "accepted";
+            }
+            if($filterArray[2] === '1'){
+                $incomingFilterValue[] = "finished";
+            }
+            if($filterArray[3] === '1'){
+                $incomingFilterValue[] = "cancelled_by_initiator";
+            }
+            if($filterArray[4] === '1'){
+                $incomingFilterValue[] = "cancelled_by_executor";
+            }
+            $query->andWhere(['task_status' => $incomingFilterValue]);
+        }
+        if($sort !== null){
+            switch($sort){
+                case "0":
+                    $query->orderBy('task_status');
+                    break;
+                case "1":
+                    $query->orderBy('task_header');
+                    break;
+                case "2":
+                    $query->orderBy('task_creation_time');
+                    break;
+                case "3":
+                    $query->orderBy('target');
+                    break;
+                case "4":
+                    $query->orderBy('task_finish_time');
+                    break;
+            }
+        }
+        if($limit !== null){
+            $query->limit($limit);
+        }
+        else{
+            $limit = 0;
+        }
+        if($page !== null){
+            $query->offset($limit * $page);
+        }
+        $existent = $query->all();
         $result = [];
         if (!empty($existent)) {
             /** @var Task $item */

@@ -94,7 +94,11 @@ class Api
         if (!empty($token)) {
             $user = User::findIdentityByAccessToken($token);
             if ($user !== null) {
-                $list = Task::getTaskList($user->id);
+                $filter = Yii::$app->request->post('filter');
+                $sort = Yii::$app->request->post('sort');
+                $limit = Yii::$app->request->post('limit');
+                $page = Yii::$app->request->post('page');
+                $list = Task::getTaskList($user->id, $filter, $sort, $limit, $page);
                 return ['status' => 'success', 'list' => $list];
             }
         }
