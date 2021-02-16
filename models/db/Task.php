@@ -264,4 +264,30 @@ class Task extends ActiveRecord
             }
         }
     }
+
+    public static function getTotalTasksCount(int $id, $filter = null)
+    {
+
+        $query = self::find()->where(['initiator' => $id]);
+        if ($filter !== null) {
+            $filterArray = str_split($filter);
+            if ($filterArray[0] === '1') {
+                $incomingFilterValue[] = "created";
+            }
+            if ($filterArray[1] === '1') {
+                $incomingFilterValue[] = "accepted";
+            }
+            if ($filterArray[2] === '1') {
+                $incomingFilterValue[] = "finished";
+            }
+            if ($filterArray[3] === '1') {
+                $incomingFilterValue[] = "cancelled_by_initiator";
+            }
+            if ($filterArray[4] === '1') {
+                $incomingFilterValue[] = "cancelled_by_executor";
+            }
+            $query->andWhere(['task_status' => $incomingFilterValue]);
+        }
+        return $query->count();
+    }
 }

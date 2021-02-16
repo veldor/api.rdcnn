@@ -95,8 +95,9 @@ class Api
                 $sortReverse = Yii::$app->request->post('sortReverse') === '1';
                 $limit = Yii::$app->request->post('limit');
                 $page = Yii::$app->request->post('page');
+                $totalTasksCount = Task::getTotalTasksCount($user->id, $filter);
                 $list = Task::getTaskList($user->id, $filter, $sort, $sortReverse, $limit, $page);
-                return ['status' => 'success', 'list' => $list];
+                return ['status' => 'success', 'list' => $list, 'totalTasksCount' => $totalTasksCount];
             }
         }
         return ['status' => 'failed', 'message' => 'invalid data'];
