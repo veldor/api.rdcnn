@@ -19,17 +19,14 @@ class Api
     /**
      * Обработка запроса
      * @return array
-     * @throws JsonException
      * @throws Exception|Throwable
      */
     public static function handleRequest(): array
     {
         if (!empty($_POST)) {
             $command = Yii::$app->request->post('cmd');
-            if (!empty($command)) {
-                if ($command === 'newTask') {
-                    return self::createNewTask();
-                }
+            if (!empty($command) && $command === 'newTask') {
+                return self::createNewTask();
             }
             return ['status' => 'success', 'message' => serialize($_POST)];
         }
@@ -95,7 +92,7 @@ class Api
             if ($user !== null) {
                 $filter = Yii::$app->request->post('filter');
                 $sort = Yii::$app->request->post('sort');
-                $sortReverse = Yii::$app->request->post('sortReverse');
+                $sortReverse = Yii::$app->request->post('sortReverse') === '1';
                 $limit = Yii::$app->request->post('limit');
                 $page = Yii::$app->request->post('page');
                 $list = Task::getTaskList($user->id, $filter, $sort, $sortReverse, $limit, $page);
@@ -320,7 +317,10 @@ class Api
         }
     }
 
-    public static function handleFileRequest()
+    /**
+     * @throws JsonException
+     */
+    public static function handleFileRequest(): void
     {
         self::$data = json_decode(file_get_contents('php://input'), true, 512, JSON_THROW_ON_ERROR);
         if (!empty(self::$data['cmd'])) {

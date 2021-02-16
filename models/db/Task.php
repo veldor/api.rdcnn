@@ -8,6 +8,7 @@ use app\models\User;
 use app\utils\FileUtils;
 use app\utils\FirebaseHandler;
 use Throwable;
+use Yii;
 use yii\db\ActiveRecord;
 use yii\db\Exception;
 use yii\db\StaleObjectException;
@@ -50,58 +51,58 @@ class Task extends ActiveRecord
         if ($filter !== null) {
             $filterArray = str_split($filter);
             if ($filterArray[0] === '1') {
-                if ($revertSort) {
-                    $incomingFilterValue[] = "created";
-                } else {
-                    $incomingFilterValue[] = "created DESC";
-                }
+                $incomingFilterValue[] = "created";
             }
             if ($filterArray[1] === '1') {
-                if ($revertSort) {
-                    $incomingFilterValue[] = "accepted";
-                } else {
-                    $incomingFilterValue[] = "accepted DESC";
-                }
+                $incomingFilterValue[] = "accepted";
             }
             if ($filterArray[2] === '1') {
-                if ($revertSort) {
-                    $incomingFilterValue[] = "finished";
-                } else {
-                    $incomingFilterValue[] = "finished DESC";
-                }
+                $incomingFilterValue[] = "finished";
             }
             if ($filterArray[3] === '1') {
-                if ($revertSort) {
-                    $incomingFilterValue[] = "cancelled_by_initiator";
-                } else {
-                    $incomingFilterValue[] = "cancelled_by_initiator DESC";
-                }
+                $incomingFilterValue[] = "cancelled_by_initiator";
             }
             if ($filterArray[4] === '1') {
-                if ($revertSort) {
-                    $incomingFilterValue[] = "cancelled_by_executor";
-                } else {
-                    $incomingFilterValue[] = "cancelled_by_executor DESC";
-                }
+                $incomingFilterValue[] = "cancelled_by_executor";
             }
             $query->andWhere(['task_status' => $incomingFilterValue]);
         }
         if ($sort !== null) {
             switch ($sort) {
                 case "0":
-                    $query->orderBy('task_status');
+                    if ($revertSort) {
+                        $query->orderBy('task_status DESC');
+                    } else {
+                        $query->orderBy('task_status');
+                    }
                     break;
                 case "1":
-                    $query->orderBy('task_header');
+                    if ($revertSort) {
+                        $query->orderBy('task_header DESC');
+                    } else {
+                        $query->orderBy('task_header');
+                    }
                     break;
                 case "2":
-                    $query->orderBy('task_creation_time');
+                    if ($revertSort) {
+                        $query->orderBy('task_creation_time DESC');
+                    } else {
+                        $query->orderBy('task_creation_time');
+                    }
                     break;
                 case "3":
-                    $query->orderBy('target');
+                    if ($revertSort) {
+                        $query->orderBy('target DESC');
+                    } else {
+                        $query->orderBy('target');
+                    }
                     break;
                 case "4":
-                    $query->orderBy('task_finish_time');
+                    if ($revertSort) {
+                        $query->orderBy('task_finish_time DESC');
+                    } else {
+                        $query->orderBy('task_finish_time');
+                    }
                     break;
             }
         }
