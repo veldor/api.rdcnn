@@ -8,7 +8,6 @@ use app\models\User;
 use app\utils\FileUtils;
 use app\utils\FirebaseHandler;
 use Throwable;
-use Yii;
 use yii\db\ActiveRecord;
 use yii\db\Exception;
 use yii\db\StaleObjectException;
@@ -39,35 +38,56 @@ class Task extends ActiveRecord
      * @param int $id
      * @param null $filter
      * @param null $sort
+     * @param bool $revertSort
      * @param null $limit
      * @param null $page
      * @return TaskItem[]
      */
-    public static function getTaskList(int $id, $filter = null, $sort = null, $limit = null, $page = null): array
+    public static function getTaskList(int $id, $filter = null, $sort = null, $revertSort = false, $limit = null, $page = null): array
     {
         $query = self::find()->where(['initiator' => $id]);
         $incomingFilterValue = [];
-        if($filter !== null){
+        if ($filter !== null) {
             $filterArray = str_split($filter);
-            if($filterArray[0] === '1'){
-                $incomingFilterValue[] = "created";
+            if ($filterArray[0] === '1') {
+                if ($revertSort) {
+                    $incomingFilterValue[] = "created";
+                } else {
+                    $incomingFilterValue[] = "created DESC";
+                }
             }
-            if($filterArray[1] === '1'){
-                $incomingFilterValue[] = "accepted";
+            if ($filterArray[1] === '1') {
+                if ($revertSort) {
+                    $incomingFilterValue[] = "accepted";
+                } else {
+                    $incomingFilterValue[] = "accepted DESC";
+                }
             }
-            if($filterArray[2] === '1'){
-                $incomingFilterValue[] = "finished";
+            if ($filterArray[2] === '1') {
+                if ($revertSort) {
+                    $incomingFilterValue[] = "finished";
+                } else {
+                    $incomingFilterValue[] = "finished DESC";
+                }
             }
-            if($filterArray[3] === '1'){
-                $incomingFilterValue[] = "cancelled_by_initiator";
+            if ($filterArray[3] === '1') {
+                if ($revertSort) {
+                    $incomingFilterValue[] = "cancelled_by_initiator";
+                } else {
+                    $incomingFilterValue[] = "cancelled_by_initiator DESC";
+                }
             }
-            if($filterArray[4] === '1'){
-                $incomingFilterValue[] = "cancelled_by_executor";
+            if ($filterArray[4] === '1') {
+                if ($revertSort) {
+                    $incomingFilterValue[] = "cancelled_by_executor";
+                } else {
+                    $incomingFilterValue[] = "cancelled_by_executor DESC";
+                }
             }
             $query->andWhere(['task_status' => $incomingFilterValue]);
         }
-        if($sort !== null){
-            switch($sort){
+        if ($sort !== null) {
+            switch ($sort) {
                 case "0":
                     $query->orderBy('task_status');
                     break;
@@ -85,13 +105,12 @@ class Task extends ActiveRecord
                     break;
             }
         }
-        if($limit !== null){
+        if ($limit !== null) {
             $query->limit($limit);
-        }
-        else{
+        } else {
             $limit = 0;
         }
-        if($page !== null){
+        if ($page !== null) {
             $query->offset($limit * $page);
         }
         $existent = $query->all();
@@ -237,9 +256,9 @@ class Task extends ActiveRecord
      */
     public static function deleteTask($taskId): void
     {
-        if(!empty($taskId)){
+        if (!empty($taskId)) {
             $task = self::findOne($taskId);
-            if($task !== null){
+            if ($task !== null) {
                 $task->delete();
             }
         }

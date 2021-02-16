@@ -10,7 +10,6 @@ use Exception;
 use JsonException;
 use Throwable;
 use Yii;
-use yii\web\Response;
 use yii\web\UploadedFile;
 
 class Api
@@ -96,9 +95,10 @@ class Api
             if ($user !== null) {
                 $filter = Yii::$app->request->post('filter');
                 $sort = Yii::$app->request->post('sort');
+                $sortReverse = Yii::$app->request->post('sortReverse');
                 $limit = Yii::$app->request->post('limit');
                 $page = Yii::$app->request->post('page');
-                $list = Task::getTaskList($user->id, $filter, $sort, $limit, $page);
+                $list = Task::getTaskList($user->id, $filter, $sort, $sortReverse, $limit, $page);
                 return ['status' => 'success', 'list' => $list];
             }
         }
@@ -283,7 +283,7 @@ class Api
     /**
      * @return void
      */
-    private static function getImage():void
+    private static function getImage(): void
     {
         // получу учётную запись по токену
         $token = self::$data['token'];
@@ -291,10 +291,9 @@ class Api
             $user = User::findIdentityByAccessToken($token);
             if ($user !== null) {
                 $taskId = self::$data['taskId'];
-                try{
+                try {
                     FileUtils::loadTaskImage($taskId);
-                }
-                catch (Throwable $e){
+                } catch (Throwable $e) {
                     Telegram::sendDebug($e->getMessage());
                 }
             }
@@ -304,7 +303,7 @@ class Api
     /**
      * @return void
      */
-    private static function getFile():void
+    private static function getFile(): void
     {
         // получу учётную запись по токену
         $token = self::$data['token'];
@@ -312,10 +311,9 @@ class Api
             $user = User::findIdentityByAccessToken($token);
             if ($user !== null) {
                 $taskId = self::$data['taskId'];
-                try{
+                try {
                     FileUtils::loadTaskAttachment($taskId);
-                }
-                catch (Exception $e){
+                } catch (Exception $e) {
                     Telegram::sendDebug($e->getMessage());
                 }
             }
@@ -324,16 +322,16 @@ class Api
 
     public static function handleFileRequest()
     {
-            self::$data = json_decode(file_get_contents('php://input'), true, 512, JSON_THROW_ON_ERROR);
-            if (!empty(self::$data['cmd'])) {
-                switch (self::$data['cmd']) {
-                    case 'getImage':
-                        self::getImage();
-                        break;
-                    case 'getAttachment':
-                        self::getFile();
-                        break;
-                }
+        self::$data = json_decode(file_get_contents('php://input'), true, 512, JSON_THROW_ON_ERROR);
+        if (!empty(self::$data['cmd'])) {
+            switch (self::$data['cmd']) {
+                case 'getImage':
+                    self::getImage();
+                    break;
+                case 'getAttachment':
+                    self::getFile();
+                    break;
             }
+        }
     }
 }
