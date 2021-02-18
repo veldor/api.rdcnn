@@ -22,14 +22,6 @@ use yii\widgets\ListView;
 IndexAsset::register($this);
 ShowLoadingAsset::register($this);
 
-MailHandler::sendMessage(
-    'test',
-    'test',
-    'eldorianwin@gmail.com',
-    'Я',
-    null
-);
-
 $this->title = 'Тикеты РДЦ';
 
 //
