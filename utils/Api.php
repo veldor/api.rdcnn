@@ -115,9 +115,9 @@ class Api
                 $text = Yii::$app->request->post('text');
                 $target = Yii::$app->request->post('target');
                 $t = match ($target) {
+                    'Инженерная служба' => 1,
                     'IT-отдел' => 2,
-                    'Инженерная служба' => 3,
-                    'Офис' => 4,
+                    'Офис' => 3,
                     default => 0
                 };
                 $task = new Task();
