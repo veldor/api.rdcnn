@@ -357,10 +357,7 @@ if ($filterCookie !== null && $filterCookie->value !== null) {
         <table class="table table-striped table-condensed table-hover">
             <tbody>
             <?php
-            try {
-                $query = Task::find();
-            } catch (Throwable) {
-            }
+            $query = Task::find();
             $dataProvider = new ActiveDataProvider([
                 'query' => $query->orderBy($incomingOrder),
                 'pagination' => [
@@ -372,7 +369,8 @@ if ($filterCookie !== null && $filterCookie->value !== null) {
                     'dataProvider' => $dataProvider,
                     'itemView' => 'manage_task_item',
                 ]);
-            } catch (Exception) {
+            } catch (Exception $e) {
+                echo $e->getTraceAsString();
             }
             ?>
             </tbody>
