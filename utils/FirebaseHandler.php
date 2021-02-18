@@ -3,6 +3,7 @@
 
 namespace app\utils;
 
+use app\models\db\Email;
 use app\models\db\Task;
 use app\models\db\FirebaseClient;
 use app\models\User;
@@ -25,6 +26,7 @@ class FirebaseHandler
                 if (!empty($contacts)) {
                     /** @noinspection SlowArrayOperationsInLoopInspection */
                     $list = array_merge($list, $contacts);
+                    Email::sendTaskCreated($task);
                 }
             }
         }

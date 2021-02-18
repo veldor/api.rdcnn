@@ -364,14 +364,10 @@ if ($filterCookie !== null && $filterCookie->value !== null) {
                     'pageSize' => 20,
                 ],
             ]);
-            try {
-                echo ListView::widget([
-                    'dataProvider' => $dataProvider,
-                    'itemView' => 'manage_task_item',
-                ]);
-            } catch (Exception $e) {
-                echo $e->getTraceAsString();
-            }
+            echo ListView::widget([
+                'dataProvider' => $dataProvider,
+                'itemView' => 'manage_task_item',
+            ]);
             ?>
             </tbody>
         </table>

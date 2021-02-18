@@ -74,7 +74,7 @@ class GrammarHandler
      * @param $name
      * @return string|null
      */
-    public static function handlePersonals($name)
+    public static function handlePersonals($name): string|null
     {
         if ($data = self::personalsToArray($name)) {
             if (is_array($data)) {

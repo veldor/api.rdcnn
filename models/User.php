@@ -80,6 +80,16 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Верну всех представителей роли
+     * @param int $role
+     * @return array
+     */
+    public static function findByGroup(int $role): array
+    {
+        return self::findAll(['role' => $role]);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getId()

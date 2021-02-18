@@ -5,6 +5,7 @@ namespace app\models\db;
 
 
 use app\models\User;
+use app\utils\MailHandler;
 use yii\db\ActiveRecord;
 
 /**
@@ -64,5 +65,19 @@ class Email extends ActiveRecord
             }
         }
         return '';
+    }
+
+    public static function sendTaskCreated(Task $task)
+    {
+        // найду все контакты, состоящие в подразделении, которому назначена задача
+        $contacts = User::findByGroup($task->target);
+        if(!empty($contacts)){
+            foreach ($contacts as $contact) {
+                $emails = self::findAll(['person_id' => $contact->id]);
+                if(!empty($emails)){
+                    MailHandler::sendTaskCreatedMail($emails,$contact, $task);
+                }
+            }
+        }
     }
 }

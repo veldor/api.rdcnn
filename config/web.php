@@ -10,6 +10,7 @@ use yii\web\UrlNormalizer;
 $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
 $urlRules = require __DIR__ . '/rules.php';
+$mailSettings = require __DIR__ . '/mail_settings.php';
 
 $config = [
     'id' => 'tickets',
