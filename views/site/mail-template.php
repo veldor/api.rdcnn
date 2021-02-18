@@ -131,7 +131,7 @@
         <td class="overline" colspan="2">
             Для просмотра и управлениями задачами вы можете использовать:<br/>
             <a target="_blank" href="https://rdc-scheluler.ru/">Веб-интерфейс</a><br/>
-            <a target="_blank" href="https://play.google.com/store/apps/details?id=net.veldor.todo">Приложение для Android</a>
+            <a target="_blank" href="https://play.google.com/store/apps/details?id=net.veldor.todo">Приложение для Android</a><br/>
             Have a nice day :)
         </td>
     </tr>

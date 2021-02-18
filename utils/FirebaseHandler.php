@@ -26,7 +26,6 @@ class FirebaseHandler
                 if (!empty($contacts)) {
                     /** @noinspection SlowArrayOperationsInLoopInspection */
                     $list = array_merge($list, $contacts);
-                    Email::sendTaskCreated($task);
                 }
             }
         }

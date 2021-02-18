@@ -67,7 +67,7 @@ class Email extends ActiveRecord
         return '';
     }
 
-    public static function sendTaskCreated(Task $task)
+    public static function sendTaskCreated(Task $task): void
     {
         // найду все контакты, состоящие в подразделении, которому назначена задача
         $contacts = User::findByGroup($task->target);

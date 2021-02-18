@@ -4,6 +4,7 @@ use yii\log\FileTarget;
 use yii\caching\FileCache;
 use app\models\User;
 use yii\rbac\DbManager;
+use yii\swiftmailer\Mailer;
 use yii\web\JsonParser;
 use yii\web\UrlNormalizer;
 
@@ -45,11 +46,29 @@ $config = [
             'errorAction' => 'site/error',
         ],
         'mailer' => [
-            'class' => 'yii\swifting\Mailer',
+            'class' => Mailer::class,
+            'useFileTransport' => false,
+            'messageConfig' => [
+                'charset' => 'UTF-8',
+                'from' => [$mailSettings['address'] => 'Планировщик RDC'],
+            ],
+            'transport' => [
+                'class' => 'Swift_SmtpTransport',
+                'host' => 'smtp.yandex.ru',
+                'username' => $mailSettings['login'],
+                'password' => $mailSettings['password'],
+                'port' => '587',
+                'encryption' => 'tls',
+                'streamOptions' => [
+                    'ssl' => [
+                        'verify_peer' => false,
+                        'allow_self_signed' => true
+                    ],
+                ],
+            ],
             // send all mails to a file by default. You have to set
             // 'useFileTransport' to false and configure a transport
             // for the mailer to send real emails.
-            'useFileTransport' => true,
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,

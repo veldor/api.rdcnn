@@ -16,7 +16,7 @@ class MailHandler extends Model
         return Yii::$app->controller->renderPartial('/site/mail-template', ['text' => $text]);
     }
 
-    private static function sendMessage($title, $text, $address, $sendTo, $attachments): bool
+    public static function sendMessage($title, $text, $address, $sendTo, $attachments): bool
     {
         $settingsFile = Yii::$app->basePath . '\\priv\\mail_settings.conf';
         if (is_file($settingsFile)) {
@@ -27,7 +27,7 @@ class MailHandler extends Model
                 $text = self::getMailText($text);
                 // отправлю письмо
                 $mail = Yii::$app->mailer->compose()
-                    ->setFrom([$settingsArray[0] => 'Региональный диагностический центр'])
+                    ->setFrom([$settingsArray[0] => 'Планировщик РДЦ'])
                     ->setSubject($title)
                     ->setHtmlBody($text)
                     ->setTo([$address => $sendTo ?? '']);

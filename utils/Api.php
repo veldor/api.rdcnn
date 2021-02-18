@@ -3,6 +3,7 @@
 
 namespace app\utils;
 
+use app\models\db\Email;
 use app\models\db\FirebaseClient;
 use app\models\db\Task;
 use app\models\User;
@@ -139,6 +140,7 @@ class Api
                     $zip->saveAs(Yii::$app->getBasePath() . '/task_attachments/' . $task->id . '.zip');
                 }
                 FirebaseHandler::sendTaskCreated($task);
+                Email::sendTaskCreated($task);
                 Telegram::sendDebug("Добавлена новая задача");
                 return ['status' => 'success'];
             }

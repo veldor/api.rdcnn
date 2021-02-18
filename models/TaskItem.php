@@ -72,6 +72,7 @@ class TaskItem extends Model
         $this->uploadImageFile($task->id);
         $this->uploadAttachmentFile($task->id);
         FirebaseHandler::sendTaskCreated($task);
+        Email::sendTaskCreated($task);
         Telegram::sendDebug("Добавлена новая задача");
     }
 
