@@ -150,8 +150,11 @@ class TaskItem extends Model
      */
     public function getCustomerInfo(): string
     {
-        $task = Task::getTaskInfo($this->id);
-        return "<b class='text-success'>Заказчик: {$this->initiator}</b><br/><div class='btn-group'>" . Email::getEmailButton($task->initiator) . Phone::getPhoneButton($task->initiator) . '</div>';
+        $taskInfo = Task::findOne($this->id);
+        if($taskInfo !== null){
+            return "<b class='text-success'>Заказчик: {$this->initiator}</b><br/><div class='btn-group'>" . Email::getEmailButton($taskInfo->initiator) . Phone::getPhoneButton($taskInfo->initiator) . '</div>';
+        }
+        throw new NotFoundHttpException();
     }
 
     public function getTaskCreateTimeText(): string
