@@ -3,9 +3,11 @@
 namespace app\controllers;
 
 use app\exceptions\WrongArgumentException;
+use app\models\db\Role;
 use app\models\db\Task;
 use app\models\EditableUser;
 use app\models\User;
+use Exception;
 use JetBrains\PhpStorm\ArrayShape;
 use RuntimeException;
 use Yii;
@@ -36,6 +38,10 @@ class ManageController extends Controller
                             'add-users',
                             'delete-user',
                             'delete-task',
+                            'delegate-task',
+                            'change-task-target',
+                            'set-executor',
+                            'set-target',
                         ],
                         'roles' => ['manager'],
                     ],
@@ -126,6 +132,65 @@ class ManageController extends Controller
             Task::deleteTask($taskId);
             Yii::$app->response->format = Response::FORMAT_JSON;
             return ['status' => 1, 'message' => 'Задача удалёна', 'reload' => true];
+        }
+        throw new NotFoundHttpException();
+    }
+
+    /**
+     * @param $taskId
+     * @return array
+     * @throws NotFoundHttpException
+     * @throws Exception
+     */
+    #[ArrayShape(['status' => "int", 'header' => "string", 'message' => "string"])] public function actionDelegateTask($taskId): array
+    {
+            if(Yii::$app->request->isAjax && Yii::$app->request->isPost){
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            $possibleExecutorList = User::findByGroup(Task::findOne($taskId)->target);
+            $view = $this->renderAjax('selectTaskExecutor', ['possibleExecutors' => $possibleExecutorList, 'taskId' => $taskId]);
+            return ['status' => 1,'header' => 'Выберите исполнителя',  'message' => $view];
+        }
+        throw new NotFoundHttpException();
+    }
+
+    public function actionSetExecutor($taskId, $executorId){
+        if(Yii::$app->request->isAjax && Yii::$app->request->isPost){
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            $task = Task::findOne($taskId);
+            if($task !== null){
+                if($task->task_status === 'created'){
+                    $task->setExecutor($executorId);
+                    return ['status' => 1, 'message' => 'Исполнитель назначен!', 'reload' => true];
+                }
+                return ['status' => 1, 'message' => 'Не получилось. Задачу уже выполняет ' . $task->getExecutor(), 'reload' => true];
+            }
+        }
+        throw new NotFoundHttpException();
+    }
+
+    public function actionChangeTaskTarget($taskId){
+        if(Yii::$app->request->isAjax && Yii::$app->request->isPost){
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            $task = Task::findOne($taskId);
+            $possibleRoles = Role::getExecutorRoles();
+            $view = $this->renderAjax('select_task_target', [ 'task' => $task, 'possibleRoles' => $possibleRoles]);
+            return ['status' => 1,'header' => 'Выберите назначение',  'message' => $view];
+        }
+        throw new NotFoundHttpException();
+    }
+
+    public function actionSetTarget($taskId, $targetId){
+
+        if(Yii::$app->request->isAjax && Yii::$app->request->isPost) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            $task = Task::findOne($taskId);
+            if($task !== null){
+                if($task->task_status === 'created'){
+                    $task->redirectTo($targetId);
+                    return ['status' => 1, 'message' => 'Задача переадресована', 'reload' => true];
+                }
+                return ['status' => 1,'header' => 'Невозможно выполнить',  'message' => "Похоже, задаче уже назначен исполнитель. Перенаправить можно только задачу, которой не назначен исполнитель"];
+            }
         }
         throw new NotFoundHttpException();
     }

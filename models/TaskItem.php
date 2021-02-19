@@ -13,6 +13,7 @@ use app\utils\TimeHandler;
 use Exception;
 use Yii;
 use yii\base\Model;
+use yii\web\NotFoundHttpException;
 
 class TaskItem extends Model
 {
@@ -133,12 +134,14 @@ class TaskItem extends Model
      */
     public function getExecutorInfo(): string
     {
-        $task = Task::getTaskInfo($this->id);
-        if(empty($this->executor)){
-            return '<b class="text-danger">Пока не назначен</b>';
+        $taskInfo = Task::findOne($this->id);
+        if($taskInfo !== null){
+            if(empty($this->executor)){
+                return '<b class="text-danger">Пока не назначен</b>';
+            }
+            return "<b class='text-success'>Исполнитель: {$this->executor}</b><br/><div class='btn-group'>" . Email::getEmailButton($taskInfo->executor) . Phone::getPhoneButton($taskInfo->executor) . '</div>';
         }
-
-        return "<b class='text-success'>Исполнитель: {$this->executor}</b><br/><div class='btn-group'>" . Email::getEmailButton($task->executor) . Phone::getPhoneButton($task->executor) . '</div>';
+        throw new NotFoundHttpException();
     }
 
     /**

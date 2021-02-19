@@ -340,7 +340,8 @@ function handleAjaxActivators() {
     // найду активаторы AJAX-запросов
     let activators = $('.activator');
     activators.off('click.request');
-    activators.on('click.request', function () {
+    activators.on('click.request', function (e) {
+        e.preventDefault();
         let action = $(this).attr('data-action');
         if (action) {
             // отправлю запрос на форму

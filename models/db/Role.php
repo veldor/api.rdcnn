@@ -12,7 +12,6 @@ use yii\db\ActiveRecord;
  * @property string $role_name [varchar(255)]
  * @property string $role_description [varchar(255)]
  */
-
 class Role extends ActiveRecord
 {
     public static function tableName()
@@ -24,8 +23,8 @@ class Role extends ActiveRecord
     {
         $answer = [];
         $roles = self::find()->all();
-        if(!empty($roles)){
-            foreach($roles as $role){
+        if (!empty($roles)) {
+            foreach ($roles as $role) {
                 $answer[$role->id] = $role->role_name;
             }
         }
@@ -37,13 +36,12 @@ class Role extends ActiveRecord
         $answer = [];
         $counter = 0;
         $roles = self::find()->all();
-        if(!empty($roles)){
-            foreach($roles as $role){
-                if($counter < 3){
+        if (!empty($roles)) {
+            foreach ($roles as $role) {
+                if ($counter < 3) {
                     $answer[$role->id] = $role->role_name;
                     $counter++;
-                }
-                else{
+                } else {
                     break;
                 }
             }
@@ -54,5 +52,19 @@ class Role extends ActiveRecord
     public static function getPersonRole(User $initiatorInfo)
     {
         return self::findOne($initiatorInfo->role)->role_name;
+    }
+
+    public static function getRole(int $target): string
+    {
+        $role = self::findOne($target);
+        if ($role !== null) {
+            return $role->role_description;
+        }
+        return '';
+    }
+
+    public static function getExecutorRoles()
+    {
+        return self::findAll(['id' => [1, 2, 3]]);
     }
 }

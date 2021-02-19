@@ -3,11 +3,11 @@
 
 namespace app\utils;
 
-use app\models\db\Email;
-use app\models\db\Task;
 use app\models\db\FirebaseClient;
+use app\models\db\Task;
 use app\models\User;
 use app\priv\Info;
+use GuzzleHttp\Exception\ClientException;
 use sngrl\PhpFirebaseCloudMessaging\Client;
 use sngrl\PhpFirebaseCloudMessaging\Message;
 use sngrl\PhpFirebaseCloudMessaging\Recipient\Device;
@@ -48,15 +48,20 @@ class FirebaseHandler
      */
     private static function sendMultipleMessage(array $contacts, Message $message): void
     {
-        if (!empty($contacts) && count($contacts) > 0) {
-            $server_key = Info::FIREBASE_SERVER_KEY;
-            $client = new Client();
-            $client->setApiKey($server_key);
-            $client->injectGuzzleHttpClient(new \GuzzleHttp\Client());
-            foreach ($contacts as $contact) {
-                $message->addRecipient(new Device($contact->firebase_token));
+        try{
+            if (!empty($contacts) && count($contacts) > 0) {
+                $server_key = Info::FIREBASE_SERVER_KEY;
+                $client = new Client();
+                $client->setApiKey($server_key);
+                $client->injectGuzzleHttpClient(new \GuzzleHttp\Client());
+                foreach ($contacts as $contact) {
+                    $message->addRecipient(new Device($contact->firebase_token));
+                }
+                $client->send($message);
             }
-            $client->send($message);
+        }
+        catch (ClientException){
+
         }
     }
 
@@ -65,6 +70,7 @@ class FirebaseHandler
      */
     public static function sendTaskAccepted(Task $task): void
     {
+        $list = [];
         // отправлю сообщение всем контактам, которые зарегистрированы
         $initiator = User::findOne($task->initiator);
         if ($initiator !== null) {
@@ -80,6 +86,28 @@ class FirebaseHandler
                         'task_header' => $task->task_header
                     ]);
                 self::sendMultipleMessage($contacts, $message);
+            }
+            // теперь отправлю уведомление всем остальным членам группы, что задача принята
+            $executors = User::find()->where(['role' => $task->target])->all();
+            if (!empty($executors)) {
+                /** @var User $executor */
+                foreach ($executors as $executor) {
+                    $contacts = FirebaseClient::find()->where(['person_id' => $executor->id])->all();
+                    if (!empty($contacts)) {
+                        /** @noinspection SlowArrayOperationsInLoopInspection */
+                        $list = array_merge($list, $contacts);
+                    }
+                }
+                if (!empty($list)) {
+                    $message = new Message();
+                    $message->setPriority('high');
+                    $message
+                        ->setData([
+                            'action' => 'task_accepted_by_executor',
+                            'task_id' => $task->id,
+                        ]);
+                    self::sendMultipleMessage($list, $message);
+                }
             }
         }
     }
@@ -143,6 +171,26 @@ class FirebaseHandler
                         'reason' => $item->executor_comment,
                         'task_header' => $item->task_header,
                         'executor' => User::getUserName($item->executor)
+                    ]);
+                self::sendMultipleMessage($contacts, $message);
+            }
+        }
+    }
+
+    public static function sendTaskDelegated(Task $task): void
+    {
+        $executor = User::findOne($task->executor);
+        if ($executor !== null) {
+            $contacts = FirebaseClient::find()->where(['person_id' => $executor->id])->all();
+            if (!empty($contacts)) {
+                $message = new Message();
+                $message->setPriority('high');
+                $message
+                    ->setData([
+                        'action' => 'task_delegated',
+                        'task_id' => $task->id,
+                        'initiator' => User::getUserName($task->initiator),
+                        'task_header' => $task->task_header
                     ]);
                 self::sendMultipleMessage($contacts, $message);
             }

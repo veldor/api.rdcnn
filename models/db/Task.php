@@ -7,11 +7,12 @@ use app\models\TaskItem;
 use app\models\User;
 use app\utils\FileUtils;
 use app\utils\FirebaseHandler;
+use app\utils\MailHandler;
 use Throwable;
-use Yii;
 use yii\db\ActiveRecord;
 use yii\db\Exception;
 use yii\db\StaleObjectException;
+use yii\web\IdentityInterface;
 
 /**
  * @property int $id [int(10) unsigned]
@@ -49,22 +50,7 @@ class Task extends ActiveRecord
         $query = self::find()->where(['initiator' => $id]);
         $incomingFilterValue = [];
         if ($filter !== null) {
-            $filterArray = str_split($filter);
-            if ($filterArray[0] === '1') {
-                $incomingFilterValue[] = "created";
-            }
-            if ($filterArray[1] === '1') {
-                $incomingFilterValue[] = "accepted";
-            }
-            if ($filterArray[2] === '1') {
-                $incomingFilterValue[] = "finished";
-            }
-            if ($filterArray[3] === '1') {
-                $incomingFilterValue[] = "cancelled_by_initiator";
-            }
-            if ($filterArray[4] === '1') {
-                $incomingFilterValue[] = "cancelled_by_executor";
-            }
+            $incomingFilterValue = self::constructFilter($filter, $incomingFilterValue);
             $query->andWhere(['task_status' => $incomingFilterValue]);
         }
         if ($sort !== null) {
@@ -127,7 +113,6 @@ class Task extends ActiveRecord
 
     /**
      * @param Task $item
-     * @param bool $skipAddLinkToTask
      * @return TaskItem
      */
     public static function getTaskItem(Task $item): TaskItem
@@ -182,13 +167,13 @@ class Task extends ActiveRecord
         throw new Exception("Неверный идентификатор задачи");
     }
 
-    public static function setTaskConfirmed($taskId, $adysForFinish, User $user): void
+    public static function setTaskConfirmed($taskId, $daysForFinish, User $user): void
     {
         $item = self::findOne($taskId);
-        if ($item !== null) {
+        if ($item !== null && $item->task_status === 'created' && $user->role === $item->target) {
             $now = time();
             $item->task_accept_time = $now;
-            $item->task_planned_finish_time = $now + $adysForFinish * 86400;
+            $item->task_planned_finish_time = $now + $daysForFinish * 86400;
             $item->executor = $user->id;
             $item->task_status = 'accepted';
             $item->save();
@@ -197,10 +182,10 @@ class Task extends ActiveRecord
         }
     }
 
-    public static function setTaskCancelled($taskId): void
+    public static function setTaskCancelled($taskId, IdentityInterface $user): void
     {
         $item = self::findOne($taskId);
-        if ($item !== null) {
+        if ($item !== null && ($item->task_status === 'created' || $item->task_status === 'accepted') && $item->initiator === $user->id) {
             $now = time();
             $item->task_finish_time = $now;
             $item->task_status = 'cancelled_by_initiator';
@@ -216,9 +201,9 @@ class Task extends ActiveRecord
 
     /**
      * @param $taskId
-     * @throws Throwable
+     * @param IdentityInterface $executor
      */
-    public static function setTaskFinished($taskId, User $executor): void
+    public static function setTaskFinished($taskId, IdentityInterface $executor): void
     {
         $item = self::findOne($taskId);
         if ($item !== null && $item->task_status !== 'finished' && $item->executor === $executor->getId()) {
@@ -231,10 +216,10 @@ class Task extends ActiveRecord
         }
     }
 
-    public static function setTaskDismissed($taskId, $reason): void
+    public static function setTaskDismissed($taskId, $reason, IdentityInterface $user): void
     {
         $item = self::findOne($taskId);
-        if ($item !== null) {
+        if ($item !== null && $item->task_status === 'accepted' && $item->executor === $user->getId()) {
             $now = time();
             $item->task_finish_time = $now;
             $item->task_status = 'cancelled_by_executor';
@@ -265,29 +250,98 @@ class Task extends ActiveRecord
         }
     }
 
-    public static function getTotalTasksCount(int $id, $filter = null)
+    public static function getTotalTasksCount(int $id, $filter = null): int
     {
 
         $query = self::find()->where(['initiator' => $id]);
         if ($filter !== null) {
-            $filterArray = str_split($filter);
-            if ($filterArray[0] === '1') {
-                $incomingFilterValue[] = "created";
-            }
-            if ($filterArray[1] === '1') {
-                $incomingFilterValue[] = "accepted";
-            }
-            if ($filterArray[2] === '1') {
-                $incomingFilterValue[] = "finished";
-            }
-            if ($filterArray[3] === '1') {
-                $incomingFilterValue[] = "cancelled_by_initiator";
-            }
-            if ($filterArray[4] === '1') {
-                $incomingFilterValue[] = "cancelled_by_executor";
-            }
+            $incomingFilterValue = [];
+            $incomingFilterValue = self::constructFilter($filter, $incomingFilterValue);
             $query->andWhere(['task_status' => $incomingFilterValue]);
         }
         return $query->count();
+    }
+
+    public static function getUnhandledTasksCount(): string
+    {
+        // посчитаю общее количество непринятых заявок
+        $unhandledTasks = self::find()->where(['task_status' => 'created'])->count();
+        if ($unhandledTasks > 0) {
+            return "<span class=\"badge badge-danger\">$unhandledTasks</span>";
+        }
+        return '';
+    }
+
+    public static function getOverdueTasksCount(): string
+    {
+// посчитаю количество просроченных заявок
+        $unhandledTasks = self::find()->where(['task_finish_time' => null])->andWhere(['<', 'task_planned_finish_time', time()])->count();
+        if ($unhandledTasks > 0) {
+            return "<span class=\"badge badge-danger\">$unhandledTasks</span>";
+        }
+        return '';
+    }
+
+    /**
+     * @param $filter
+     * @param array $incomingFilterValue
+     * @return array
+     */
+    public static function constructFilter($filter, array $incomingFilterValue): array
+    {
+        $filterArray = str_split($filter);
+        if ($filterArray[0] === '1') {
+            $incomingFilterValue[] = "created";
+        }
+        if ($filterArray[1] === '1') {
+            $incomingFilterValue[] = "accepted";
+        }
+        if ($filterArray[2] === '1') {
+            $incomingFilterValue[] = "finished";
+        }
+        if ($filterArray[3] === '1') {
+            $incomingFilterValue[] = "cancelled_by_initiator";
+        }
+        if ($filterArray[4] === '1') {
+            $incomingFilterValue[] = "cancelled_by_executor";
+        }
+        return $incomingFilterValue;
+    }
+
+    public function setExecutor($executorId): void
+    {
+        if ($this->task_status === 'created') {
+            $executor = User::findIdentity($executorId);
+            if ($executor !== null) {
+                $this->executor = $executorId;
+                $this->task_status = 'accepted';
+                $this->task_accept_time = time();
+                $this->save();
+                FirebaseHandler::sendTaskDelegated($this);
+                FirebaseHandler::sendTaskAccepted($this);
+                MailHandler::sendTaskDelegatedMail($this);
+            }
+        }
+    }
+
+    public function redirectTo($targetId): void
+    {
+        if ($this->task_status === 'created') {
+            $this->target = $targetId;
+            $this->save();
+            FirebaseHandler::sendTaskCreated($this);
+            Email::sendTaskCreated($this);
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getExecutor(): string
+    {
+        if ($this->executor !== null) {
+            return User::getUserName($this->executor);
+        }
+        return '';
     }
 }

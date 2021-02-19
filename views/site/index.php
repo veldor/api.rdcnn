@@ -11,7 +11,6 @@ use app\models\EditableUser;
 use app\models\TaskItem;
 use app\models\User;
 use app\models\UserModel;
-use app\utils\MailHandler;
 use nirvana\showloading\ShowLoadingAsset;
 use unclead\multipleinput\MultipleInput;
 use yii\data\ActiveDataProvider;
@@ -71,8 +70,12 @@ if ($filterCookie !== null && $filterCookie->value !== null) {
     } catch (Throwable) {
     }
     if (Yii::$app->user->can("manage ticket")) {
+
         echo '<li><!--suppress HtmlUnknownAnchorTarget -->
-<a href="#management" data-toggle="tab">Управление пользователями</a></li><li><a href="#taskManagement" data-toggle="tab">Управление задачами</a></li>';
+<li><a href="#management" data-toggle="tab">Управление пользователями</a></li>
+<li><a href="#managementUnhandled" data-toggle="tab">Нераспределённые задачи ' . Task::getUnhandledTasksCount() . '</a></li>
+<li><a href="#managementOverdue" data-toggle="tab">Просроченные задачи ' . Task::getOverdueTasksCount() . '</a></li>
+<li><a href="#taskManagement" data-toggle="tab">Управление задачами</a></li>';
     }
     ?>
 </ul>
@@ -368,6 +371,44 @@ if ($filterCookie !== null && $filterCookie->value !== null) {
             echo ListView::widget([
                 'dataProvider' => $dataProvider,
                 'itemView' => 'manage_task_item',
+            ]);
+            ?>
+            </tbody>
+        </table>
+    </div>
+    <div class="tab-pane" id="managementOverdue">
+        <table class="table table-striped table-condensed table-hover">
+            <tbody>
+            <?php
+            $query = Task::find()->where(['task_finish_time' => null])->andWhere(['<',  'task_planned_finish_time', time()]);
+            $dataProvider = new ActiveDataProvider([
+                'query' => $query->orderBy($incomingOrder),
+                'pagination' => [
+                    'pageSize' => 20,
+                ],
+            ]);
+            echo ListView::widget([
+                'dataProvider' => $dataProvider,
+                'itemView' => 'manage_overdue_task_item',
+            ]);
+            ?>
+            </tbody>
+        </table>
+    </div>
+    <div class="tab-pane" id="managementUnhandled">
+        <table class="table table-striped table-condensed table-hover">
+            <tbody>
+            <?php
+            $query = Task::find()->where([ 'task_status' => 'created']);
+            $dataProvider = new ActiveDataProvider([
+                'query' => $query->orderBy($incomingOrder),
+                'pagination' => [
+                    'pageSize' => 20,
+                ],
+            ]);
+            echo ListView::widget([
+                'dataProvider' => $dataProvider,
+                'itemView' => 'manage_unhandled_task_item',
             ]);
             ?>
             </tbody>

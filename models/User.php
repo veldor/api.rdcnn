@@ -84,7 +84,7 @@ class User extends ActiveRecord implements IdentityInterface
      * @param int $role
      * @return array
      */
-    public static function findByGroup(int $role): array
+    public static function findByGroup(mixed $role): array
     {
         return self::findAll(['role' => $role]);
     }

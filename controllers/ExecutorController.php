@@ -114,7 +114,7 @@ class ExecutorController extends Controller
 
     /**
      * @return array
-     * @throws NotFoundHttpException
+     * @throws NotFoundHttpException|Throwable
      */
     #[ArrayShape(['status' => "int", 'message' => "string", 'reload' => "int"])] public function actionFinishTask(): array
     {
@@ -122,7 +122,7 @@ class ExecutorController extends Controller
         if (Yii::$app->request->isPost && Yii::$app->request->isAjax) {
             $taskId = Yii::$app->request->post('taskId');
             if(!empty($taskId)){
-                Task::setTaskFinished($taskId);
+                Task::setTaskFinished($taskId, Yii::$app->user->getIdentity());
                 return ['status' => 1, 'message' => 'Спасибо за работу!', 'reload' => 1];
             }
         }
@@ -131,7 +131,7 @@ class ExecutorController extends Controller
 
     /**
      * @return array
-     * @throws NotFoundHttpException
+     * @throws NotFoundHttpException|Throwable
      */
     #[ArrayShape(['status' => "int", 'message' => "string", 'reload' => "int"])] public function actionCancelTask(): array
     {
@@ -140,7 +140,7 @@ class ExecutorController extends Controller
             $taskId = Yii::$app->request->post('taskId');
             $cancelReason = Yii::$app->request->post('reason');
             if(!empty($taskId) && !empty($cancelReason)){
-                Task::setTaskDismissed($taskId, $cancelReason);
+                Task::setTaskDismissed($taskId, $cancelReason, Yii::$app->user->getIdentity());
                 return ['status' => 1, 'message' => 'Принято, задача отменена!', 'reload' => 1];
             }
         }

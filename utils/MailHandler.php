@@ -66,4 +66,23 @@ class MailHandler extends Model
             }
         }
     }
+
+    public static function sendTaskDelegatedMail(Task $task): void
+    {
+        $contact = User::findIdentity($task->executor);
+        if ($contact !== null) {
+            $email = Email::getEmail($contact);
+            if ($email !== null) {
+                $personals = GrammarHandler::handlePersonals($contact->name);
+                $text = "Менеджер назначил вас для выполнения задачи <br/>{$task->task_header}<br/>{$task->task_body}<br/>Вы можете увидеть подробности в приложении или веб-интерфейсе. Успехов!";
+                self::sendMessage(
+                    "Назначена новая задача",
+                    $text,
+                    $email->email,
+                    $personals,
+                    null
+                );
+            }
+        }
+    }
 }

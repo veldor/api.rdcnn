@@ -219,7 +219,7 @@ class Api
             $user = User::findIdentityByAccessToken($token);
             if ($user !== null) {
                 $taskId = self::$data['taskId'];
-                Task::setTaskCancelled($taskId);
+                Task::setTaskCancelled($taskId, $user);
                 return self::getTaskInfo();
             }
         }
@@ -273,7 +273,7 @@ class Api
             if ($user !== null) {
                 $taskId = self::$data['taskId'];
                 $reason = self::$data['reason'];
-                Task::setTaskDismissed($taskId, $reason);
+                Task::setTaskDismissed($taskId, $reason, $user);
                 return ['status' => 'success'];
             }
         }

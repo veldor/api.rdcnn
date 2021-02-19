@@ -7,6 +7,7 @@ use app\models\TaskItem;
 use Exception;
 use JetBrains\PhpStorm\ArrayShape;
 use RuntimeException;
+use Throwable;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -52,7 +53,11 @@ class UserController extends Controller
         ];
     }
 
-    public function actionGetOutgoingForm()
+    /**
+     * @return array
+     * @throws Throwable
+     */
+    #[ArrayShape(['status' => "int", 'form' => "string"])] public function actionGetOutgoingForm(): array
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         $user = Yii::$app->user->getIdentity();
@@ -61,7 +66,11 @@ class UserController extends Controller
         return ['status' => 1, 'form' => $view];
     }
 
-    public function actionAddOutgoingTask()
+    /**
+     * @return Response
+     * @throws NotFoundHttpException
+     */
+    public function actionAddOutgoingTask(): Response
     {
         if (Yii::$app->request->isPost) {
             $model = new TaskItem(['scenario' => TaskItem::SCENARIO_NEW]);
@@ -94,7 +103,7 @@ class UserController extends Controller
 
     /**
      * @return array
-     * @throws NotFoundHttpException
+     * @throws NotFoundHttpException|Throwable
      */
     #[ArrayShape(['status' => "int", 'message' => "string", 'reload' => "int"])] public function actionCancelTask(): array
     {
@@ -102,7 +111,7 @@ class UserController extends Controller
         if (Yii::$app->request->isPost && Yii::$app->request->isAjax) {
             $taskId = Yii::$app->request->post('taskId');
             if(!empty($taskId)){
-                Task::setTaskCancelled($taskId);
+                Task::setTaskCancelled($taskId, Yii::$app->user->getIdentity());
                 return ['status' => 1, 'message' => 'Заявка отменена', 'reload' => 1];
             }
         }
