@@ -9,6 +9,7 @@ use app\utils\FileUtils;
 use app\utils\FirebaseHandler;
 use app\utils\MailHandler;
 use Throwable;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\db\Exception;
 use yii\db\StaleObjectException;
@@ -48,67 +49,18 @@ class Task extends ActiveRecord
     public static function getTaskList(int $id, $filter = null, $sort = null, $revertSort = false, $limit = null, $page = null): array
     {
         $query = self::find()->where(['initiator' => $id]);
-        $incomingFilterValue = [];
-        if ($filter !== null) {
-            $incomingFilterValue = self::constructFilter($filter, $incomingFilterValue);
-            $query->andWhere(['task_status' => $incomingFilterValue]);
+        return self::getTasksList($filter, $query, $sort, $revertSort, $limit, $page);
+    }
+
+
+    public static function getIncomingTaskList(int $id, mixed $filter, mixed $sort, bool $revertSort, mixed $limit, mixed $page): ?array
+    {
+        $executorInfo = User::findIdentity($id);
+        if ($executorInfo !== null) {
+            $query = self::find()->where(['executor' => $id])->orWhere(['target' => $executorInfo->role, 'task_status' => 'created']);
+            return self::getTasksList($filter, $query, $sort, $revertSort, $limit, $page);
         }
-        if ($sort !== null) {
-            switch ($sort) {
-                case "0":
-                    if ($revertSort) {
-                        $query->orderBy('task_status DESC');
-                    } else {
-                        $query->orderBy('task_status');
-                    }
-                    break;
-                case "1":
-                    if ($revertSort) {
-                        $query->orderBy('task_header DESC');
-                    } else {
-                        $query->orderBy('task_header');
-                    }
-                    break;
-                case "2":
-                    if ($revertSort) {
-                        $query->orderBy('task_creation_time DESC');
-                    } else {
-                        $query->orderBy('task_creation_time');
-                    }
-                    break;
-                case "3":
-                    if ($revertSort) {
-                        $query->orderBy('target DESC');
-                    } else {
-                        $query->orderBy('target');
-                    }
-                    break;
-                case "4":
-                    if ($revertSort) {
-                        $query->orderBy('task_finish_time DESC');
-                    } else {
-                        $query->orderBy('task_finish_time');
-                    }
-                    break;
-            }
-        }
-        if ($limit !== null) {
-            $query->limit($limit);
-        } else {
-            $limit = 0;
-        }
-        if ($page !== null) {
-            $query->offset($limit * $page);
-        }
-        $existent = $query->all();
-        $result = [];
-        if (!empty($existent)) {
-            /** @var Task $item */
-            foreach ($existent as $item) {
-                $result[] = self::getTaskItem($item);
-            }
-        }
-        return $result;
+        return null;
     }
 
     /**
@@ -230,11 +182,6 @@ class Task extends ActiveRecord
         }
     }
 
-    public static function getTasksForExecutor(User $user): array
-    {
-        return self::find()->where(['executor' => $user->id])->orWhere(['executor' => null, 'target' => $user->role])->all();
-    }
-
     /**
      * @param $taskId
      * @throws Throwable
@@ -260,6 +207,22 @@ class Task extends ActiveRecord
             $query->andWhere(['task_status' => $incomingFilterValue]);
         }
         return $query->count();
+    }
+
+
+    public static function getExecutorTotalTasksCount(int $id, mixed $filter) :?int
+    {
+        $executorInfo = User::findIdentity($id);
+        if ($executorInfo !== null) {
+            $query = self::find()->where(['initiator' => $id])->orWhere(['target' => $executorInfo->role, 'task_status' => 'created']);
+            if ($filter !== null) {
+                $incomingFilterValue = [];
+                $incomingFilterValue = self::constructFilter($filter, $incomingFilterValue);
+                $query->andWhere(['task_status' => $incomingFilterValue]);
+            }
+            return $query->count();
+        }
+        return null;
     }
 
     public static function getUnhandledTasksCount(): string
@@ -307,6 +270,81 @@ class Task extends ActiveRecord
         }
         return $incomingFilterValue;
     }
+
+    /**
+     * @param $filter
+     * @param ActiveQuery $query
+     * @param $sort
+     * @param bool $revertSort
+     * @param $limit
+     * @param $page
+     * @return array
+     */
+    public static function getTasksList($filter, ActiveQuery $query, $sort, bool $revertSort, $limit, $page): array
+    {
+        $incomingFilterValue = [];
+        if ($filter !== null) {
+            $incomingFilterValue = self::constructFilter($filter, $incomingFilterValue);
+            $query->andWhere(['task_status' => $incomingFilterValue]);
+        }
+        if ($sort !== null) {
+            switch ($sort) {
+                case "0":
+                    if ($revertSort) {
+                        $query->orderBy('task_status DESC');
+                    } else {
+                        $query->orderBy('task_status');
+                    }
+                    break;
+                case "1":
+                    if ($revertSort) {
+                        $query->orderBy('task_header DESC');
+                    } else {
+                        $query->orderBy('task_header');
+                    }
+                    break;
+                case "2":
+                    if ($revertSort) {
+                        $query->orderBy('task_creation_time DESC');
+                    } else {
+                        $query->orderBy('task_creation_time');
+                    }
+                    break;
+                case "3":
+                    if ($revertSort) {
+                        $query->orderBy('target DESC');
+                    } else {
+                        $query->orderBy('target');
+                    }
+                    break;
+                case "4":
+                    if ($revertSort) {
+                        $query->orderBy('task_finish_time DESC');
+                    } else {
+                        $query->orderBy('task_finish_time');
+                    }
+                    break;
+            }
+        }
+        if ($limit !== null) {
+            $query->limit($limit);
+        } else {
+            $limit = 0;
+        }
+        if ($page !== null) {
+            $query->offset($limit * $page);
+        }
+        $existent = $query->all();
+        $result = [];
+        if (!empty($existent)) {
+            /** @var Task $item */
+            foreach ($existent as $item) {
+                $result[] = self::getTaskItem($item);
+            }
+        }
+        return $result;
+    }
+
 
     public function setExecutor($executorId): void
     {

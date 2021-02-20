@@ -84,26 +84,6 @@ class Api
         return ['status' => 'failed', 'message' => 'invalid data'];
     }
 
-    private static function getTaskList(): array
-    {
-        // получу учётную запись по токену
-        $token = self::$data['token'];
-        if (!empty($token)) {
-            $user = User::findIdentityByAccessToken($token);
-            if ($user !== null) {
-                $filter = Yii::$app->request->post('filter');
-                $sort = Yii::$app->request->post('sort');
-                $sortReverse = Yii::$app->request->post('sortReverse') === '1';
-                $limit = Yii::$app->request->post('limit');
-                $page = Yii::$app->request->post('page');
-                $totalTasksCount = Task::getTotalTasksCount($user->id, $filter);
-                $list = Task::getTaskList($user->id, $filter, $sort, $sortReverse, $limit, $page);
-                return ['status' => 'success', 'list' => $list, 'totalTasksCount' => $totalTasksCount];
-            }
-        }
-        return ['status' => 'failed', 'message' => 'invalid data'];
-    }
-
     private static function createNewTask(): array
     {
         // получу учётную запись по токену
@@ -148,6 +128,26 @@ class Api
         return ['status' => 'failed', 'message' => 'invalid data'];
     }
 
+    private static function getTaskList(): array
+    {
+        // получу учётную запись по токену
+        $token = self::$data['token'];
+        if (!empty($token)) {
+            $user = User::findIdentityByAccessToken($token);
+            if ($user !== null) {
+                $filter = Yii::$app->request->post('filter');
+                $sort = Yii::$app->request->post('sort');
+                $sortReverse = Yii::$app->request->post('sortReverse') === '1';
+                $limit = Yii::$app->request->post('limit');
+                $page = Yii::$app->request->post('page');
+                $totalTasksCount = Task::getTotalTasksCount($user->id, $filter);
+                $list = Task::getTaskList($user->id, $filter, $sort, $sortReverse, $limit, $page);
+                return ['status' => 'success', 'list' => $list, 'totalTasksCount' => $totalTasksCount];
+            }
+        }
+        return ['status' => 'failed', 'message' => 'invalid data'];
+    }
+
     private static function getIncomingTaskList(): array
     {
         // получу учётную запись по токену
@@ -155,15 +155,14 @@ class Api
         if (!empty($token)) {
             $user = User::findIdentityByAccessToken($token);
             if ($user !== null) {
-                $tasks = Task::getTasksForExecutor($user);
-                $result = [];
-                if (!empty($tasks)) {
-                    /** @var Task $item */
-                    foreach ($tasks as $item) {
-                        $result[] = Task::getTaskItem($item);
-                    }
-                }
-                return ['status' => 'success', 'list' => $result];
+                $filter = Yii::$app->request->post('filter');
+                $sort = Yii::$app->request->post('sort');
+                $sortReverse = Yii::$app->request->post('sortReverse') === '1';
+                $limit = Yii::$app->request->post('limit');
+                $page = Yii::$app->request->post('page');
+                $totalTasksCount = Task::getExecutorTotalTasksCount($user->id, $filter);
+                $list = Task::getIncomingTaskList($user->id, $filter, $sort, $sortReverse, $limit, $page);
+                return ['status' => 'success', 'list' => $list, 'totalTasksCount' => $totalTasksCount];
             }
         }
         return ['status' => 'failed', 'message' => 'invalid data'];
