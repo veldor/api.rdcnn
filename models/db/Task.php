@@ -124,7 +124,6 @@ class Task extends ActiveRecord
     {
         $item = self::findOne($taskId);
         if ($item !== null && $user->role === $item->target) {
-            Telegram::sendDebug("here");
             if($item->task_status === 'created'){
                 $now = time();
                 $item->task_accept_time = $now;
@@ -136,7 +135,6 @@ class Task extends ActiveRecord
                 FirebaseHandler::sendTaskAccepted($item);
             }
             elseif($item->task_status === 'accepted' && $item->task_planned_finish_time === null){
-                Telegram::sendDebug("and here");
                 $item->task_planned_finish_time = time() + $daysForFinish * 86400;
                 $item->save();
             }
