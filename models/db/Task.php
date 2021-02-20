@@ -291,9 +291,9 @@ class Task extends ActiveRecord
             switch ($sort) {
                 case "0":
                     if ($revertSort) {
-                        $query->orderBy('task_status DESC');
+                        $query->orderBy('task_status DESC task_created');
                     } else {
-                        $query->orderBy('task_status');
+                        $query->orderBy('task_status task_created');
                     }
                     break;
                 case "1":
