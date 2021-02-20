@@ -223,7 +223,7 @@ class Task extends ActiveRecord
     {
         $executorInfo = User::findIdentity($id);
         if ($executorInfo !== null) {
-            $query = self::find()->where(['initiator' => $id])->orWhere(['target' => $executorInfo->role, 'task_status' => 'created']);
+            $query = self::find()->where(['executor' => $id])->orWhere(['target' => $executorInfo->role, 'task_status' => 'created']);
             if ($filter !== null) {
                 $incomingFilterValue = [];
                 $incomingFilterValue = self::constructFilter($filter, $incomingFilterValue);
