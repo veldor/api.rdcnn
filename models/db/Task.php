@@ -122,15 +122,21 @@ class Task extends ActiveRecord
     public static function setTaskConfirmed($taskId, $daysForFinish, User $user): void
     {
         $item = self::findOne($taskId);
-        if ($item !== null && $item->task_status === 'created' && $user->role === $item->target) {
-            $now = time();
-            $item->task_accept_time = $now;
-            $item->task_planned_finish_time = $now + $daysForFinish * 86400;
-            $item->executor = $user->id;
-            $item->task_status = 'accepted';
-            $item->save();
-            // отправлю сообщение инициатору о том, что задача принята
-            FirebaseHandler::sendTaskAccepted($item);
+        if ($item !== null && $user->role === $item->target) {
+            if($item->task_status === 'created'){
+                $now = time();
+                $item->task_accept_time = $now;
+                $item->task_planned_finish_time = $now + $daysForFinish * 86400;
+                $item->executor = $user->id;
+                $item->task_status = 'accepted';
+                $item->save();
+                // отправлю сообщение инициатору о том, что задача принята
+                FirebaseHandler::sendTaskAccepted($item);
+            }
+            elseif($item->task_status === 'accepted' && $item->task_planned_finish_time === 0){
+                $item->task_planned_finish_time = time() + $daysForFinish * 86400;
+                $item->save();
+            }
         }
     }
 
