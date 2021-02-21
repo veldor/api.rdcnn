@@ -14,6 +14,11 @@ use yii\web\View;
 
 $taskInfo = Task::findOne($model->taskId);
 $claimer = User::findIdentity($model->claimerId);
+
+if($taskInfo === null || $claimer === null){
+    echo "<tr><td colspan='3'>Задача не найдена</td></tr>";
+}
+else{
 ?>
 
 <tr>
@@ -24,3 +29,5 @@ $claimer = User::findIdentity($model->claimerId);
         <button class="btn btn-danger activator" data-action="/close-claim/<?=$model->id?>">В архив</button>
     </td>
 </tr>
+<?php
+}
