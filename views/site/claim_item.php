@@ -19,7 +19,6 @@ $claimer = User::findIdentity($model->claimerId);
 <tr>
     <td><a target="_blank" href="<?=Url::toRoute(['executor/incoming-task-details', 'taskId' => $model->id])?>"><?=Html::encode($taskInfo->task_header) ?></a></td>
     <td><?="От: {$claimer->name}"?></td>
-    <td><?="Задача: <a href='/outgoing-task/details/{$taskInfo->id}'>$taskInfo->hesk_header</a>"?></td>
     <td><?=$model->claimText?></td>
     <td>
         <button class="btn btn-danger activator" data-action="/close-claim/<?=$model->id?>">В архив</button>
