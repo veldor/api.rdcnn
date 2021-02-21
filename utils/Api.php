@@ -3,6 +3,7 @@
 
 namespace app\utils;
 
+use app\models\db\Claim;
 use app\models\db\Email;
 use app\models\db\FirebaseClient;
 use app\models\db\Task;
@@ -55,6 +56,8 @@ class Api
                         return self::getNewTasks();
                     case 'dismissTask':
                         return self::dismissTask();
+                    case 'createClaim':
+                        return self::createClaim();
                 }
             }
             return ['status' => 'failed', 'message' => 'invalid data'];
@@ -335,5 +338,26 @@ class Api
                     break;
             }
         }
+    }
+
+    /**
+     * @return string[]
+     */
+    private static function createClaim(): array
+    {
+        // получу учётную запись по токену
+        $token = self::$data['token'];
+        if (!empty($token)) {
+            $user = User::findIdentityByAccessToken($token);
+            if ($user !== null) {
+                $taskId = self::$data['taskId'];
+                $claimText = self::$data['claimText'];
+                if (!empty($taskId) && !empty($claimText)) {
+                    Claim::createClaim($user, $taskId, $claimText);
+                    return ['status' => 'success'];
+                }
+            }
+        }
+        return ['status' => 'failed', 'message' => 'invalid data'];
     }
 }
