@@ -3,6 +3,7 @@
 /* @var $this yii\web\View */
 
 use app\assets\IndexAsset;
+use app\models\db\Claim;
 use app\models\db\Email;
 use app\models\db\Phone;
 use app\models\db\Role;
@@ -75,6 +76,7 @@ if ($filterCookie !== null && $filterCookie->value !== null) {
 <li><a href="#management" data-toggle="tab">Управление пользователями</a></li>
 <li><a href="#managementUnhandled" data-toggle="tab">Нераспределённые задачи ' . Task::getUnhandledTasksCount() . '</a></li>
 <li><a href="#managementOverdue" data-toggle="tab">Просроченные задачи ' . Task::getOverdueTasksCount() . '</a></li>
+<li><a href="#claimManagement" data-toggle="tab">Жалобы' . Claim::countOpened() .'</a></li>
 <li><a href="#taskManagement" data-toggle="tab">Управление задачами</a></li>';
     }
     ?>
@@ -409,6 +411,25 @@ if ($filterCookie !== null && $filterCookie->value !== null) {
             echo ListView::widget([
                 'dataProvider' => $dataProvider,
                 'itemView' => 'manage_unhandled_task_item',
+            ]);
+            ?>
+            </tbody>
+        </table>
+    </div>
+    <div class="tab-pane" id="claimManagement">
+        <table class="table table-striped table-condensed table-hover">
+            <tbody>
+            <?php
+            $query = Claim::find()->where([ 'state' => 'waiting']);
+            $dataProvider = new ActiveDataProvider([
+                'query' => $query->orderBy($incomingOrder),
+                'pagination' => [
+                    'pageSize' => 20,
+                ],
+            ]);
+            echo ListView::widget([
+                'dataProvider' => $dataProvider,
+                'itemView' => 'claim_item',
             ]);
             ?>
             </tbody>

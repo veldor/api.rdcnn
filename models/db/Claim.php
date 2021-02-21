@@ -3,19 +3,9 @@
 
 namespace app\models\db;
 
-use app\models\TaskItem;
 use app\models\User;
-use app\utils\FileUtils;
-use app\utils\FirebaseHandler;
-use app\utils\MailHandler;
 use app\utils\Telegram;
-use Throwable;
-use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
-use yii\db\Exception;
-use yii\db\StaleObjectException;
-use yii\debug\models\timeline\Search;
-use yii\web\IdentityInterface;
 
 /**
  * @property int $id [int(10) unsigned]
@@ -48,6 +38,16 @@ class Claim extends ActiveRecord
                 Telegram::sendDebug("Оставлена жалоба: " . $newClaim->claimText);
             }
         }
+    }
+
+    public static function countOpened()
+    {
+        // посчитаю общее количество непринятых заявок
+        $opened = self::find()->where(['state' => 'waiting'])->count();
+        if ($opened > 0) {
+            return "<span class=\"badge badge-danger\">$opened</span>";
+        }
+        return '';
     }
 
 }
