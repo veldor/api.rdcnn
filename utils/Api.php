@@ -25,8 +25,8 @@ class Api
      */
     public static function handleRequest(): array
     {
+        Telegram::sendDebug(file_get_contents('php://input'));
         if (!empty($_POST)) {
-            Telegram::sendDebug(serialize($_POST));
             $command = Yii::$app->request->post('cmd');
             if (!empty($command) && $command === 'newTask') {
                 return self::createNewTask();
