@@ -36,6 +36,7 @@ class Api
         try {
             Telegram::sendDebug("handle json");
             self::$data = json_decode(file_get_contents('php://input'), true, 512, JSON_THROW_ON_ERROR);
+            Telegram::sendDebug("json handled");
             if (!empty(self::$data['cmd'])) {
                 switch (self::$data['cmd']) {
                     case 'login':
