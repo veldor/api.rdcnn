@@ -106,7 +106,7 @@ class FileUtils
     {
         $file = Yii::$app->getBasePath() . '/web/files/schedule.xlsx';
         if(is_file($file)){
-            echo hash_file('md5', 'example.txt');
+            echo hash_file('md5', $file);
         }
         echo 0;
     }
