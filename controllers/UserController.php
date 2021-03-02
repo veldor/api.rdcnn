@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\db\Task;
 use app\models\TaskItem;
+use app\utils\FileUtils;
 use Exception;
 use JetBrains\PhpStorm\ArrayShape;
 use RuntimeException;
@@ -34,6 +35,7 @@ class UserController extends Controller
                             'get-outgoing-form',
                             'add-outgoing-task',
                             'outgoing-task-details',
+                            'show-schedule-hash',
                             'cancel-task',
                             'select-order',
                         ],
@@ -145,5 +147,9 @@ class UserController extends Controller
             }
         }
         return $this->redirect('/#outgoingTickets');
+    }
+
+    public function actionShowScheduleHash(){
+        FileUtils::showScheduleHash();
     }
 }

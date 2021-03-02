@@ -5,6 +5,7 @@ return [
     'get-file' => 'api/file',
     'login' => 'site/login',
     'cancel-task' => 'user/cancel-task',
+    'schedule/hash' => 'user/show-schedule-hash',
     'accept-task' => 'executor/accept-task',
     'user/delete/<userId:\d+>' => 'manage/delete-user',
     'delete-task/<taskId:\d+>' => 'manage/delete-task',

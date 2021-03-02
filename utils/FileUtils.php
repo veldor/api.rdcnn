@@ -101,4 +101,13 @@ class FileUtils
         }
         throw new NotFoundHttpException();
     }
+
+    public static function showScheduleHash()
+    {
+        $file = Yii::$app->getBasePath() . '/web/files/schedule.xlsx';
+        if(is_file($file)){
+            echo hash_file('md5', 'example.txt');
+        }
+        echo 0;
+    }
 }
