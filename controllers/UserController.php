@@ -29,13 +29,20 @@ class UserController extends Controller
                     throw new RuntimeException('У вас нет доступа к этой странице');
                 },
                 'rules' => [
+
+                    [
+                        'allow' => true,
+                        'actions' => [
+                            'show-schedule-hash',
+                        ],
+                        'roles' => ['?', '@'],
+                    ],
                     [
                         'allow' => true,
                         'actions' => [
                             'get-outgoing-form',
                             'add-outgoing-task',
                             'outgoing-task-details',
-                            'show-schedule-hash',
                             'cancel-task',
                             'select-order',
                         ],
@@ -112,7 +119,7 @@ class UserController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
         if (Yii::$app->request->isPost && Yii::$app->request->isAjax) {
             $taskId = Yii::$app->request->post('taskId');
-            if(!empty($taskId)){
+            if (!empty($taskId)) {
                 Task::setTaskCancelled($taskId, Yii::$app->user->getIdentity());
                 return ['status' => 1, 'message' => 'Заявка отменена', 'reload' => 1];
             }
@@ -122,12 +129,12 @@ class UserController extends Controller
 
     public function actionSelectOrder(): Response
     {
-        if (Yii::$app->request->isPost){
+        if (Yii::$app->request->isPost) {
             $order = Yii::$app->request->post('orderBy');
             $filter = Yii::$app->request->post('filtered');
             $cookies = Yii::$app->response->cookies;
             // добавлю куку фильтрации результатов
-            if(!empty($filter)){
+            if (!empty($filter)) {
                 // добавлю куку сортировки
                 $cookies->add(new Cookie([
                     'path' => '/',
@@ -136,7 +143,7 @@ class UserController extends Controller
                     'httpOnly' => false,
                 ]));
             }
-            if(!empty($order)){
+            if (!empty($order)) {
                 // добавлю куку сортировки
                 $cookies->add(new Cookie([
                     'path' => '/',
@@ -149,7 +156,8 @@ class UserController extends Controller
         return $this->redirect('/#outgoingTickets');
     }
 
-    public function actionShowScheduleHash(){
+    public function actionShowScheduleHash()
+    {
         FileUtils::showScheduleHash();
     }
 }
