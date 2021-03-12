@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'privacy-policy' => 'site/privacy',
     'api' => 'api/do',
     'get-file' => 'api/file',
     'login' => 'site/login',

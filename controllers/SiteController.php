@@ -2,10 +2,8 @@
 
 namespace app\controllers;
 
-use app\models\Api;
 use app\models\db\Task;
 use app\models\LoginForm;
-use app\models\User;
 use app\utils\Telegram;
 use JetBrains\PhpStorm\ArrayShape;
 use RuntimeException;
@@ -48,6 +46,7 @@ class SiteController extends Controller
                         'actions' => [
                             'index',
                             'error',
+                            'privacy'
                         ],
                         'roles' => ['?', '@'],
                     ],
@@ -108,9 +107,8 @@ class SiteController extends Controller
         throw new NotFoundHttpException();
     }
 
-    public function actionApi(): array
+    public function actionPrivacy(): string
     {
-        Yii::$app->response->format = Response::FORMAT_JSON;
-        return Api::handleRequest();
+        return $this->render("privacy");
     }
 }
